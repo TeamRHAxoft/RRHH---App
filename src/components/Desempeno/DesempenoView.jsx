@@ -97,14 +97,16 @@ function NumberCell({ value, onChange }) {
   )
 }
 
-function AddManagerModal({ area, year, onClose, onAdded }) {
+function AddManagerModal({ area, year, tipo, trimestre, onClose, onAdded }) {
   const [nombre, setNombre] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    await supabase.from('evaluacion_desempeno').insert([{ area, year, nombre_mando_medio: nombre }])
+    await supabase.from('evaluacion_desempeno').insert([{
+      area, year, tipo, trimestre: trimestre || null, nombre_mando_medio: nombre,
+    }])
     onAdded()
     onClose()
     setLoading(false)
@@ -141,21 +143,27 @@ function AddManagerModal({ area, year, onClose, onAdded }) {
   )
 }
 
-function AreaTable({ area, year }) {
+function AreaTable({ area, year, tipo, trimestre }) {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
 
-  useEffect(() => { fetchRows() }, [area, year])
+  useEffect(() => { fetchRows() }, [area, year, tipo, trimestre])
 
   const fetchRows = async () => {
     setLoading(true)
-    const { data } = await supabase
+    let query = supabase
       .from('evaluacion_desempeno')
       .select('*')
       .eq('area', area)
       .eq('year', year)
+      .eq('tipo', tipo)
       .order('created_at', { ascending: true })
+
+    if (trimestre) query = query.eq('trimestre', trimestre)
+    else query = query.is('trimestre', null)
+
+    const { data } = await query
     setRows(data || [])
     setLoading(false)
   }
@@ -280,6 +288,8 @@ function AreaTable({ area, year }) {
         <AddManagerModal
           area={area}
           year={year}
+          tipo={tipo}
+          trimestre={trimestre}
           onClose={() => setShowAdd(false)}
           onAdded={fetchRows}
         />
@@ -288,9 +298,54 @@ function AreaTable({ area, year }) {
   )
 }
 
+function FeedbackInformalSection({ year }) {
+  const TRIMESTRES = ['Q1', 'Q2', 'Q3']
+  const [activeQ, setActiveQ] = useState('Q1')
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        {TRIMESTRES.map((q) => (
+          <button
+            key={q}
+            onClick={() => setActiveQ(q)}
+            className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              activeQ === q
+                ? 'bg-white text-brand-700 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {q}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-4">
+        {AREAS.map((area) => (
+          <AreaTable key={area} area={area} year={year} tipo="feedback_informal" trimestre={activeQ} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function EvaluacionAnualSection({ year }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-gray-500 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 w-fit">
+        Evaluación anual — octubre / noviembre
+      </p>
+      {AREAS.map((area) => (
+        <AreaTable key={area} area={area} year={year} tipo="evaluacion_anual" trimestre={null} />
+      ))}
+    </div>
+  )
+}
+
 export default function DesempenoView() {
   const currentYear = new Date().getFullYear()
   const [year, setYear] = useState(currentYear)
+  const [section, setSection] = useState('feedback')
   const years = Array.from({ length: 4 }, (_, i) => currentYear - 1 + i)
 
   return (
@@ -309,9 +364,32 @@ export default function DesempenoView() {
         </select>
       </div>
 
-      {AREAS.map((area) => (
-        <AreaTable key={area} area={area} year={year} />
-      ))}
+      {/* Main section tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setSection('feedback')}
+          className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            section === 'feedback'
+              ? 'border-brand-600 text-brand-700'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Feedback Informal (Trimestral)
+        </button>
+        <button
+          onClick={() => setSection('anual')}
+          className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            section === 'anual'
+              ? 'border-brand-600 text-brand-700'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Evaluación de Desempeño Anual
+        </button>
+      </div>
+
+      {section === 'feedback' && <FeedbackInformalSection year={year} />}
+      {section === 'anual' && <EvaluacionAnualSection year={year} />}
     </div>
   )
 }
