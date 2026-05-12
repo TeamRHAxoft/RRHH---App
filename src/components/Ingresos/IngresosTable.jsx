@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Plus, Trash2 } from 'lucide-react'
 import AddIngresoModal from './AddIngresoModal'
+import { AREAS, SOLICITANTES, PUESTOS } from '../../lib/constants'
 
 const BOOL_OPTIONS = [
   { value: null, label: '—' },
@@ -69,6 +70,19 @@ function TextCell({ value, onChange }) {
     >
       {value || <span className="text-gray-300">—</span>}
     </span>
+  )
+}
+
+function SelectCell({ value, onChange, options }) {
+  return (
+    <select
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value || null)}
+      className="text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-brand-400 rounded px-1 text-gray-700 cursor-pointer w-full"
+    >
+      <option value="">—</option>
+      {options.map((o) => <option key={o} value={o}>{o}</option>)}
+    </select>
   )
 }
 
@@ -160,9 +174,9 @@ export default function IngresosTable({ tipo, year }) {
               ) : (
                 rows.map((row) => (
                   <tr key={row.id} className="hover:bg-gray-50">
-                    <td className={CELL}><TextCell value={row.area} onChange={(v) => updateField(row.id, 'area', v)} /></td>
-                    <td className={CELL}><TextCell value={row.puesto} onChange={(v) => updateField(row.id, 'puesto', v)} /></td>
-                    <td className={CELL}><TextCell value={row.solicitado_por} onChange={(v) => updateField(row.id, 'solicitado_por', v)} /></td>
+                    <td className={CELL}><SelectCell value={row.area} onChange={(v) => updateField(row.id, 'area', v)} options={AREAS} /></td>
+                    <td className={CELL}><SelectCell value={row.puesto} onChange={(v) => updateField(row.id, 'puesto', v)} options={PUESTOS} /></td>
+                    <td className={CELL}><SelectCell value={row.solicitado_por} onChange={(v) => updateField(row.id, 'solicitado_por', v)} options={SOLICITANTES} /></td>
                     <td className={CELL}><TextCell value={row.fuente_reclutamiento} onChange={(v) => updateField(row.id, 'fuente_reclutamiento', v)} /></td>
                     <td className={CELL + ' font-medium'}><TextCell value={row.nombre_apellido} onChange={(v) => updateField(row.id, 'nombre_apellido', v)} /></td>
                     <td className={CELL}><DateCell value={row.fecha_estimada_ingreso} onChange={(v) => updateField(row.id, 'fecha_estimada_ingreso', v)} /></td>

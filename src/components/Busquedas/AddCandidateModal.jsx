@@ -1,15 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { X } from 'lucide-react'
-
-const STAGES = [
-  'CV Recibido', 'Screening', 'Test', 'Entrevista con Líder',
-  '2da Entrevista con Líder', 'Psicotécnico', 'Preocupacional',
-  'Propuesta Laboral', 'Ingreso',
-]
+import { STAGES_EXTERNAL, STAGES_INTERNAL, CONSULTORAS } from '../../lib/constants'
 
 export default function AddCandidateModal({ searchId, searchName, isInternal, onClose, onAdded }) {
-  const [form, setForm] = useState({ name: '', consultora: '', stage: 'CV Recibido', notes: '' })
+  const STAGES = isInternal ? STAGES_INTERNAL : STAGES_EXTERNAL
+  const [form, setForm] = useState({ name: '', consultora: '', stage: STAGES[0], notes: '' })
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -18,7 +14,7 @@ export default function AddCandidateModal({ searchId, searchName, isInternal, on
     await supabase.from('candidates').insert([{
       search_id: searchId,
       name: form.name,
-      consultora: form.consultora,
+      consultora: isInternal ? null : form.consultora,
       stage: form.stage,
       notes: form.notes,
     }])
@@ -49,18 +45,21 @@ export default function AddCandidateModal({ searchId, searchName, isInternal, on
               placeholder="Nombre Apellido"
             />
           </div>
+
           {!isInternal && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Consultora</label>
-              <input
-                type="text"
+              <select
                 value={form.consultora}
                 onChange={(e) => setForm({ ...form, consultora: e.target.value })}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-                placeholder="Nombre de la consultora"
-              />
+              >
+                <option value="">— Sin consultora —</option>
+                {CONSULTORAS.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
           )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Etapa inicial</label>
             <select
@@ -71,6 +70,7 @@ export default function AddCandidateModal({ searchId, searchName, isInternal, on
               {STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
             <textarea
@@ -80,6 +80,7 @@ export default function AddCandidateModal({ searchId, searchName, isInternal, on
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
             />
           </div>
+
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">Cancelar</button>
             <button type="submit" disabled={loading} className="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">
