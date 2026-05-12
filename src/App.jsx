@@ -62,7 +62,7 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-x-auto overflow-y-auto">
         {activeTab === 'selection' && <SelectionBoard user={session.user} />}
         {activeTab === 'weekly' && <WeeklyBoard user={session.user} />}
         {activeTab === 'history' && <HistoryView />}

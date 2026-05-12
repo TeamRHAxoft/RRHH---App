@@ -66,7 +66,7 @@ export default function SelectionBoard() {
   }
 
   return (
-    <div className="p-4 h-full flex flex-col">
+    <div className="p-4 flex flex-col" style={{ minHeight: 0 }}>
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-800">Pipeline de Selección</h2>
@@ -82,7 +82,7 @@ export default function SelectionBoard() {
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide flex-1">
+        <div className="flex gap-3 overflow-x-auto pb-4" style={{ minHeight: '500px' }}>
           {STAGES.map((stage) => (
             <StageColumn
               key={stage}
