@@ -18,6 +18,9 @@ const STAGE_STYLES = {
   'Test o Assessment Center (opcional)': { pill: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
   'Entrevista con el Líder':        { pill: 'bg-orange-100 text-orange-700', dot: 'bg-orange-400' },
   'Devolución':                     { pill: 'bg-teal-100 text-teal-700',    dot: 'bg-teal-400' },
+  'No continua':                    { pill: 'bg-red-100 text-red-600',      dot: 'bg-red-400' },
+  'Aceptó otra propuesta':          { pill: 'bg-red-100 text-red-600',      dot: 'bg-red-400' },
+  'En standby':                     { pill: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
 }
 
 const DEFAULT_STYLE = { pill: 'bg-gray-100 text-gray-600', dot: 'bg-gray-400' }

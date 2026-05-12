@@ -8,6 +8,9 @@ export const STAGES_EXTERNAL = [
   'Preocupacional',
   'Propuesta Laboral',
   'Ingreso',
+  'No continua',
+  'Aceptó otra propuesta',
+  'En standby',
 ]
 
 export const STAGES_INTERNAL = [
