@@ -4,6 +4,12 @@ import { Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
+const CARD_STYLES = {
+  'Por hacer':   'bg-white border-gray-200',
+  'En progreso': 'bg-blue-50 border-blue-200',
+  'Hecho':       'bg-green-50 border-green-200',
+}
+
 function Avatar({ name, size = 'sm' }) {
   if (!name) return null
   const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -41,8 +47,8 @@ export default function TaskCard({ task, index, onDelete, onUpdate, readOnly, cu
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`bg-white rounded-lg border transition-all ${
-            snapshot.isDragging ? 'border-brand-400 shadow-lg' : 'border-gray-200 hover:border-brand-200'
+          className={`rounded-lg border transition-all ${
+            snapshot.isDragging ? 'border-brand-400 shadow-lg bg-white' : `${CARD_STYLES[task.status] || CARD_STYLES['Por hacer']} hover:border-brand-200`
           }`}
         >
           {editing ? (

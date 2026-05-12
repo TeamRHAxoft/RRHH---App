@@ -9,8 +9,14 @@ import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
 
 const STATUS_TEXT = {
   'Por hacer': 'text-gray-600 bg-gray-100',
-  'En progreso': 'text-blue-700 bg-blue-50',
-  'Hecho': 'text-green-700 bg-green-50',
+  'En progreso': 'text-blue-700 bg-blue-100',
+  'Hecho': 'text-green-700 bg-green-100',
+}
+
+const DETAIL_STYLES = {
+  'Por hacer':   'bg-gray-50 border border-gray-200',
+  'En progreso': 'bg-blue-50 border border-blue-200',
+  'Hecho':       'bg-green-50 border border-green-200',
 }
 const STATUS_COLORS = {
   'Por hacer': 'bg-gray-400',
@@ -252,7 +258,7 @@ export default function CalendarView({ user }) {
           ) : (
             <div className="space-y-2">
               {selectedDayTasks.map((task) => (
-                <div key={task.id} className="flex items-start gap-3 p-2 rounded-lg bg-gray-50">
+                <div key={task.id} className={`flex items-start gap-3 p-2 rounded-lg ${DETAIL_STYLES[task.status] || DETAIL_STYLES['Por hacer']}`}>
                   <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800">{task.title}</p>
