@@ -15,7 +15,7 @@ export default function Header({ user }) {
             <Users className="w-5 h-5 text-brand-600" />
           </div>
           <div>
-            <h1 className="font-bold text-gray-800 leading-tight">RRHH App</h1>
+            <h1 className="font-bold text-gray-800 leading-tight">TeamRH</h1>
             <p className="text-xs text-gray-400">Axoft</p>
           </div>
         </div>
