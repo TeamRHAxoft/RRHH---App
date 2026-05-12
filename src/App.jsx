@@ -6,13 +6,15 @@ import WeeklyBoard from './components/Weekly/WeeklyBoard'
 import CalendarView from './components/Calendar/CalendarView'
 import BusquedasBoard from './components/Busquedas/BusquedasBoard'
 import IngresosView from './components/Ingresos/IngresosView'
-import { Home, Search, CalendarDays, UserCheck } from 'lucide-react'
+import DesempenoView from './components/Desempeno/DesempenoView'
+import { Home, Search, CalendarDays, UserCheck, ClipboardList } from 'lucide-react'
 
 const TABS = [
   { id: 'home', label: 'Inicio', icon: Home },
-  { id: 'busquedas', label: 'Búsquedas', icon: Search },
   { id: 'weekly', label: 'Semana', icon: CalendarDays },
+  { id: 'busquedas', label: 'Búsquedas', icon: Search },
   { id: 'ingresos', label: 'Ingresos', icon: UserCheck },
+  { id: 'desempeno', label: 'Evaluación de Desempeño', icon: ClipboardList },
 ]
 
 export default function App() {
@@ -66,9 +68,10 @@ export default function App() {
 
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'home' && <CalendarView user={session.user} />}
-        {activeTab === 'busquedas' && <BusquedasBoard />}
         {activeTab === 'weekly' && <WeeklyBoard user={session.user} />}
+        {activeTab === 'busquedas' && <BusquedasBoard />}
         {activeTab === 'ingresos' && <IngresosView />}
+        {activeTab === 'desempeno' && <DesempenoView />}
       </main>
     </div>
   )
