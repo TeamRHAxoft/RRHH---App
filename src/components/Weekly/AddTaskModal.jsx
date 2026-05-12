@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { X } from 'lucide-react'
 
-export default function AddTaskModal({ weekStart, currentUser, onClose, onAdded }) {
+export default function AddTaskModal({ weekStart, currentProfile, profiles, onClose, onAdded }) {
   const [form, setForm] = useState({
     title: '',
     description: '',
     status: 'Por hacer',
-    assigned_to: currentUser || '',
+    assigned_to: currentProfile?.display_name || '',
   })
   const [loading, setLoading] = useState(false)
 
@@ -19,6 +19,7 @@ export default function AddTaskModal({ weekStart, currentUser, onClose, onAdded 
       description: form.description,
       status: form.status,
       assigned_to: form.assigned_to,
+      created_by: currentProfile?.display_name || '',
       week_start: weekStart,
     }])
     onAdded()
@@ -71,13 +72,16 @@ export default function AddTaskModal({ weekStart, currentUser, onClose, onAdded 
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Asignado a</label>
-            <input
-              type="text"
+            <select
               value={form.assigned_to}
               onChange={(e) => setForm({ ...form, assigned_to: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="email@axoft.com"
-            />
+            >
+              <option value="">— Sin asignar —</option>
+              {profiles.map((p) => (
+                <option key={p.id} value={p.display_name}>{p.display_name}</option>
+              ))}
+            </select>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">

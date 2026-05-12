@@ -22,6 +22,8 @@ function getWeekStart(offset = 0) {
 
 export default function WeeklyBoard({ user }) {
   const [tasks, setTasks] = useState([])
+  const [profiles, setProfiles] = useState([])
+  const [currentProfile, setCurrentProfile] = useState(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const [showAddModal, setShowAddModal] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -33,6 +35,10 @@ export default function WeeklyBoard({ user }) {
   const isCurrentWeek = weekOffset === 0
 
   useEffect(() => {
+    fetchProfiles()
+  }, [user])
+
+  useEffect(() => {
     fetchTasks()
     const channel = supabase
       .channel('tasks-weekly')
@@ -40,6 +46,13 @@ export default function WeeklyBoard({ user }) {
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [weekOffset])
+
+  const fetchProfiles = async () => {
+    const { data } = await supabase.from('profiles').select('*').order('display_name')
+    setProfiles(data || [])
+    const mine = (data || []).find((p) => p.id === user?.id)
+    setCurrentProfile(mine || null)
+  }
 
   const fetchTasks = async () => {
     setLoading(true)
@@ -130,7 +143,8 @@ export default function WeeklyBoard({ user }) {
               onDelete={handleDelete}
               onUpdate={handleUpdate}
               readOnly={!isCurrentWeek}
-              currentUser={user?.email}
+              currentProfile={currentProfile}
+              profiles={profiles}
             />
           ))}
         </div>
@@ -139,7 +153,8 @@ export default function WeeklyBoard({ user }) {
       {showAddModal && (
         <AddTaskModal
           weekStart={weekKey}
-          currentUser={user?.email}
+          currentProfile={currentProfile}
+          profiles={profiles}
           onClose={() => setShowAddModal(false)}
           onAdded={fetchTasks}
         />

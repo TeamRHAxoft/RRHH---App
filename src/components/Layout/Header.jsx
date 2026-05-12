@@ -1,11 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { LogOut, Users, History } from 'lucide-react'
 import HistoryPanel from '../History/HistoryPanel'
 
 export default function Header({ user }) {
   const [showHistory, setShowHistory] = useState(false)
+  const [displayName, setDisplayName] = useState('')
   const handleLogout = () => supabase.auth.signOut()
+
+  useEffect(() => {
+    if (!user) return
+    supabase.from('profiles').select('display_name').eq('id', user.id).single()
+      .then(({ data }) => { if (data) setDisplayName(data.display_name) })
+  }, [user])
 
   return (
     <>
@@ -20,7 +27,7 @@ export default function Header({ user }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500 hidden sm:block">{user?.email}</span>
+          <span className="text-sm text-gray-500 hidden sm:block">{displayName || user?.email}</span>
           <button
             onClick={() => setShowHistory(true)}
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-50"

@@ -1,7 +1,7 @@
 import { Droppable } from '@hello-pangea/dnd'
 import TaskCard from './TaskCard'
 
-export default function TaskColumn({ status, colorClass, tasks, onDelete, onUpdate, readOnly, currentUser }) {
+export default function TaskColumn({ status, colorClass, tasks, onDelete, onUpdate, readOnly, currentProfile, profiles }) {
   return (
     <div className="flex flex-col">
       <div className={`rounded-t-lg px-3 py-2 border-t border-x font-medium text-xs ${colorClass}`}>
@@ -25,7 +25,8 @@ export default function TaskColumn({ status, colorClass, tasks, onDelete, onUpda
                 onDelete={onDelete}
                 onUpdate={onUpdate}
                 readOnly={readOnly}
-                currentUser={currentUser}
+                currentProfile={currentProfile}
+                profiles={profiles}
               />
             ))}
             {provided.placeholder}
