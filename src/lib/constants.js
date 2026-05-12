@@ -77,6 +77,23 @@ export const SOLICITANTES = [
   'Brenda Cioffi',
 ]
 
+export const FUENTES_RECLUTAMIENTO = [
+  'Universidades',
+  'Computrabajo',
+  'Referidos',
+  'Linkedin',
+  'Fundacion Forge',
+  'Alkemy',
+  'Consultora Daniela',
+  'Consultora Elisabeth',
+  'Reingreso',
+  'Reclutamiento propio de Axoft',
+  'Feria de empleo',
+  'Academia',
+  'Fundacion pescar',
+  'Fundación Empujar',
+]
+
 export const PUESTOS = [
   'Analista Funcional (ATF)',
   'Analista QA',

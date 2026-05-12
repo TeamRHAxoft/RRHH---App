@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { X } from 'lucide-react'
-import { AREAS, SOLICITANTES, PUESTOS } from '../../lib/constants'
+import { AREAS, SOLICITANTES, PUESTOS, FUENTES_RECLUTAMIENTO } from '../../lib/constants'
 
 function SelectField({ label, value, onChange, options, required }) {
   return (
@@ -69,15 +69,7 @@ export default function AddIngresoModal({ tipo, year, onClose, onAdded }) {
           <SelectField label="Área" value={form.area} onChange={set('area')} options={AREAS} />
           <SelectField label="Puesto" value={form.puesto} onChange={set('puesto')} options={PUESTOS} />
           <SelectField label="Quien lo solicita" value={form.solicitado_por} onChange={set('solicitado_por')} options={SOLICITANTES} />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fuente de reclutamiento</label>
-            <input
-              type="text"
-              value={form.fuente_reclutamiento}
-              onChange={(e) => set('fuente_reclutamiento')(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-            />
-          </div>
+          <SelectField label="Fuente de reclutamiento" value={form.fuente_reclutamiento} onChange={set('fuente_reclutamiento')} options={FUENTES_RECLUTAMIENTO} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Fecha estimada de ingreso</label>
             <input

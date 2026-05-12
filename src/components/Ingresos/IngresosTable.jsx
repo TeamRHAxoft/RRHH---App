@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Plus, Trash2 } from 'lucide-react'
 import AddIngresoModal from './AddIngresoModal'
-import { AREAS, SOLICITANTES, PUESTOS } from '../../lib/constants'
+import { AREAS, SOLICITANTES, PUESTOS, FUENTES_RECLUTAMIENTO } from '../../lib/constants'
 
 const BOOL_OPTIONS = [
   { value: null, label: '—' },
@@ -177,7 +177,7 @@ export default function IngresosTable({ tipo, year }) {
                     <td className={CELL}><SelectCell value={row.area} onChange={(v) => updateField(row.id, 'area', v)} options={AREAS} /></td>
                     <td className={CELL}><SelectCell value={row.puesto} onChange={(v) => updateField(row.id, 'puesto', v)} options={PUESTOS} /></td>
                     <td className={CELL}><SelectCell value={row.solicitado_por} onChange={(v) => updateField(row.id, 'solicitado_por', v)} options={SOLICITANTES} /></td>
-                    <td className={CELL}><TextCell value={row.fuente_reclutamiento} onChange={(v) => updateField(row.id, 'fuente_reclutamiento', v)} /></td>
+                    <td className={CELL}><SelectCell value={row.fuente_reclutamiento} onChange={(v) => updateField(row.id, 'fuente_reclutamiento', v)} options={FUENTES_RECLUTAMIENTO} /></td>
                     <td className={CELL + ' font-medium'}><TextCell value={row.nombre_apellido} onChange={(v) => updateField(row.id, 'nombre_apellido', v)} /></td>
                     <td className={CELL}><DateCell value={row.fecha_estimada_ingreso} onChange={(v) => updateField(row.id, 'fecha_estimada_ingreso', v)} /></td>
                     <td className={CELL}><DateCell value={row.fecha_entrevista_seguimiento} onChange={(v) => updateField(row.id, 'fecha_entrevista_seguimiento', v)} /></td>
