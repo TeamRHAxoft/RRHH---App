@@ -22,6 +22,7 @@ export const RESULTADO_OPTIONS = [
   '',
   'Quedó en la terna',
   'Quedó seleccionado para el puesto',
+  'No avanza',
 ]
 
 export const CONSULTORAS = [

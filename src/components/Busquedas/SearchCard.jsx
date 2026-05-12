@@ -142,6 +142,7 @@ export default function SearchCard({ search, candidates, onRefresh }) {
                               className={`text-xs px-2 py-1 rounded-full border-0 font-medium cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand-400 ${
                                 c.resultado === 'Quedó seleccionado para el puesto' ? 'bg-green-100 text-green-700' :
                                 c.resultado === 'Quedó en la terna' ? 'bg-indigo-100 text-indigo-700' :
+                                c.resultado === 'No avanza' ? 'bg-red-100 text-red-600' :
                                 'bg-gray-100 text-gray-500'
                               }`}
                             >
