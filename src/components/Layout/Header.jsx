@@ -1,10 +1,79 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { LogOut, Users, History } from 'lucide-react'
+import { LogOut, Users, History, KeyRound, X } from 'lucide-react'
 import HistoryPanel from '../History/HistoryPanel'
+
+function ChangePasswordModal({ onClose }) {
+  const [form, setForm] = useState({ password: '', confirm: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (form.password !== form.confirm) { setError('Las contraseñas no coinciden'); return }
+    if (form.password.length < 6) { setError('Mínimo 6 caracteres'); return }
+    setLoading(true)
+    setError('')
+    const { error } = await supabase.auth.updateUser({ password: form.password })
+    setLoading(false)
+    if (error) { setError(error.message); return }
+    setSuccess(true)
+    setTimeout(onClose, 1500)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
+        <div className="flex items-center justify-between p-5 border-b">
+          <h3 className="font-semibold text-gray-800">Cambiar contraseña</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {success ? (
+            <p className="text-green-600 text-sm text-center font-medium">¡Contraseña actualizada!</p>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
+                <input
+                  type="password"
+                  required
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  placeholder="Mínimo 6 caracteres"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+                <input
+                  type="password"
+                  required
+                  value={form.confirm}
+                  onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                  placeholder="Repetí la contraseña"
+                />
+              </div>
+              {error && <p className="text-red-500 text-xs">{error}</p>}
+              <div className="flex gap-3 pt-1">
+                <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">Cancelar</button>
+                <button type="submit" disabled={loading} className="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">
+                  {loading ? 'Guardando...' : 'Guardar'}
+                </button>
+              </div>
+            </>
+          )}
+        </form>
+      </div>
+    </div>
+  )
+}
 
 export default function Header({ user }) {
   const [showHistory, setShowHistory] = useState(false)
+  const [showChangePassword, setShowChangePassword] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const handleLogout = () => supabase.auth.signOut()
 
@@ -29,6 +98,13 @@ export default function Header({ user }) {
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500 hidden sm:block">{displayName || user?.email}</span>
           <button
+            onClick={() => setShowChangePassword(true)}
+            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-50"
+            title="Cambiar contraseña"
+          >
+            <KeyRound className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setShowHistory(true)}
             className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-brand-50"
             title="Historial de semanas"
@@ -47,6 +123,7 @@ export default function Header({ user }) {
       </header>
 
       {showHistory && <HistoryPanel onClose={() => setShowHistory(false)} />}
+      {showChangePassword && <ChangePasswordModal onClose={() => setShowChangePassword(false)} />}
     </>
   )
 }
