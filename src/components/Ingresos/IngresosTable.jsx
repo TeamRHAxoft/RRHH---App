@@ -78,7 +78,8 @@ function SelectCell({ value, onChange, options }) {
     <select
       value={value || ''}
       onChange={(e) => onChange(e.target.value || null)}
-      className="text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-brand-400 rounded px-1 text-gray-700 cursor-pointer w-full"
+      className="text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-brand-400 rounded pr-5 pl-1 text-gray-700 cursor-pointer w-full appearance-auto"
+      style={{ minWidth: '100px' }}
     >
       <option value="">—</option>
       {options.map((o) => <option key={o} value={o}>{o}</option>)}
