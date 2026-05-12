@@ -22,7 +22,7 @@ export default function SearchList({ type }) {
 
   const fetchData = async () => {
     const [{ data: s }, { data: c }] = await Promise.all([
-      supabase.from('searches').select('*').eq('type', type).in('status', ['activa', null]).order('created_at', { ascending: false }),
+      supabase.from('searches').select('*').eq('type', type).or('status.eq.activa,status.is.null').order('created_at', { ascending: false }),
       supabase.from('candidates').select('*').order('created_at', { ascending: true }),
     ])
     setSearches(s || [])
