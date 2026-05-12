@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { format, startOfWeek, addWeeks } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChevronDown, ChevronRight, CheckCircle2, Circle, Clock } from 'lucide-react'
+import { ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, RotateCcw } from 'lucide-react'
 
 const STATUS_ICONS = {
   'Hecho': <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />,
@@ -18,6 +18,7 @@ export default function HistoryView() {
   const [allTasks, setAllTasks] = useState([])
   const [openWeeks, setOpenWeeks] = useState({})
   const [loading, setLoading] = useState(true)
+  const [restoring, setRestoring] = useState(null)
 
   const currentWeekStart = format(getCurrentWeekStart(), 'yyyy-MM-dd')
 
@@ -35,6 +36,16 @@ export default function HistoryView() {
     setLoading(false)
   }
 
+  const handleRestore = async (task) => {
+    setRestoring(task.id)
+    await supabase
+      .from('tasks')
+      .update({ week_start: currentWeekStart, status: 'Por hacer', updated_at: new Date() })
+      .eq('id', task.id)
+    await fetchHistory()
+    setRestoring(null)
+  }
+
   const groupedByWeek = allTasks.reduce((acc, task) => {
     if (!acc[task.week_start]) acc[task.week_start] = []
     acc[task.week_start].push(task)
@@ -49,7 +60,6 @@ export default function HistoryView() {
 
   const formatWeekLabel = (weekStart) => {
     const d = new Date(weekStart + 'T12:00:00')
-    const end = addWeeks(d, 1)
     return `${format(d, "d 'de' MMMM", { locale: es })} — ${format(addWeeks(d, 0), "d", { locale: es })+6} de ${format(d, "MMMM yyyy", { locale: es })}`
   }
 
@@ -120,7 +130,7 @@ export default function HistoryView() {
                           {statusTasks.map((task) => (
                             <div key={task.id} className="flex items-start gap-2 py-1.5 px-2 rounded-lg bg-gray-50">
                               <span className="mt-0.5 flex-shrink-0">{STATUS_ICONS[task.status]}</span>
-                              <div className="min-w-0">
+                              <div className="min-w-0 flex-1">
                                 <p className="text-sm text-gray-700">{task.title}</p>
                                 {task.description && (
                                   <p className="text-xs text-gray-400 mt-0.5">{task.description}</p>
@@ -129,6 +139,17 @@ export default function HistoryView() {
                                   <p className="text-xs text-brand-500 mt-0.5">{task.assigned_to.split('@')[0]}</p>
                                 )}
                               </div>
+                              {task.status !== 'Hecho' && (
+                                <button
+                                  onClick={() => handleRestore(task)}
+                                  disabled={restoring === task.id}
+                                  title="Restaurar a semana actual"
+                                  className="flex-shrink-0 flex items-center gap-1 text-xs text-brand-600 hover:text-brand-800 hover:bg-brand-50 px-2 py-1 rounded-lg transition-colors disabled:opacity-40"
+                                >
+                                  <RotateCcw className="w-3 h-3" />
+                                  <span>{restoring === task.id ? '...' : 'Restaurar'}</span>
+                                </button>
+                              )}
                             </div>
                           ))}
                         </div>
