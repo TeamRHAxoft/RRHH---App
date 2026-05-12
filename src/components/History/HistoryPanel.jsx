@@ -43,7 +43,7 @@ export default function HistoryPanel({ onClose }) {
 
   const fetchClosedSearches = async () => {
     const [{ data: s }, { data: c }] = await Promise.all([
-      supabase.from('searches').select('*').eq('status', 'cerrada').order('updated_at', { ascending: false }),
+      supabase.from('searches').select('*').eq('status', 'cerrada').order('created_at', { ascending: false }),
       supabase.from('candidates').select('*'),
     ])
     setClosedSearches(s || [])
