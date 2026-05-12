@@ -5,9 +5,11 @@ import Header from './components/Layout/Header'
 import SelectionBoard from './components/Selection/SelectionBoard'
 import WeeklyBoard from './components/Weekly/WeeklyBoard'
 import HistoryView from './components/History/HistoryView'
-import { GitMerge, CalendarDays, Archive } from 'lucide-react'
+import CalendarView from './components/Calendar/CalendarView'
+import { Home, GitMerge, CalendarDays, Archive } from 'lucide-react'
 
 const TABS = [
+  { id: 'home', label: 'Inicio', icon: Home },
   { id: 'selection', label: 'Selección', icon: GitMerge },
   { id: 'weekly', label: 'Semana', icon: CalendarDays },
   { id: 'history', label: 'Historial', icon: Archive },
@@ -16,7 +18,7 @@ const TABS = [
 export default function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('weekly')
+  const [activeTab, setActiveTab] = useState('home')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -63,6 +65,7 @@ export default function App() {
       </nav>
 
       <main className="flex-1 overflow-y-auto">
+        {activeTab === 'home' && <CalendarView />}
         {activeTab === 'selection' && <SelectionBoard user={session.user} />}
         {activeTab === 'weekly' && <WeeklyBoard user={session.user} />}
         {activeTab === 'history' && <HistoryView />}
