@@ -20,14 +20,14 @@ function SelectField({ label, value, onChange, options, required }) {
   )
 }
 
-export default function AddIngresoModal({ tipo, year, onClose, onAdded }) {
+export default function AddIngresoModal({ tipo, year, onClose, onAdded, initialData = {} }) {
   const [form, setForm] = useState({
-    nombre_apellido: '',
-    area: '',
-    puesto: '',
-    solicitado_por: '',
-    fuente_reclutamiento: '',
-    fecha_estimada_ingreso: '',
+    nombre_apellido: initialData.nombre_apellido || '',
+    area: initialData.area || '',
+    puesto: initialData.puesto || '',
+    solicitado_por: initialData.solicitado_por || '',
+    fuente_reclutamiento: initialData.fuente_reclutamiento || '',
+    fecha_estimada_ingreso: initialData.fecha_estimada_ingreso || '',
   })
   const [loading, setLoading] = useState(false)
 

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { ChevronDown, ChevronUp, Plus, Trash2, User, Building2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Plus, Trash2, User, Building2, UserCheck } from 'lucide-react'
 import AddCandidateModal from './AddCandidateModal'
+import AddIngresoModal from '../Ingresos/AddIngresoModal'
 import { STAGES_EXTERNAL, STAGES_INTERNAL, RESULTADO_OPTIONS } from '../../lib/constants'
 
 const STAGE_STYLES = {
@@ -28,7 +29,9 @@ const DEFAULT_STYLE = { pill: 'bg-gray-100 text-gray-600', dot: 'bg-gray-400' }
 export default function SearchCard({ search, candidates, onRefresh }) {
   const [expanded, setExpanded] = useState(false)
   const [showAddCandidate, setShowAddCandidate] = useState(false)
+  const [ingresoCandidate, setIngresoCandidate] = useState(null)
   const isInternal = search.type === 'interna'
+  const currentYear = new Date().getFullYear()
   const STAGES = isInternal ? STAGES_INTERNAL : STAGES_EXTERNAL
 
   const handleDeleteSearch = async () => {
@@ -138,6 +141,17 @@ export default function SearchCard({ search, candidates, onRefresh }) {
                             title="Fecha en esta etapa"
                           />
 
+                          {!isInternal && c.stage === 'Ingreso' && c.stage_date && (
+                            <button
+                              onClick={() => setIngresoCandidate(c)}
+                              className="flex items-center gap-1 text-xs bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1 rounded-full font-medium transition-colors"
+                              title="Crear ingreso con estos datos"
+                            >
+                              <UserCheck className="w-3 h-3" />
+                              Crear ingreso
+                            </button>
+                          )}
+
                           {isInternal && (
                             <select
                               value={c.resultado || ''}
@@ -179,6 +193,21 @@ export default function SearchCard({ search, candidates, onRefresh }) {
           isInternal={isInternal}
           onClose={() => setShowAddCandidate(false)}
           onAdded={onRefresh}
+        />
+      )}
+
+      {ingresoCandidate && (
+        <AddIngresoModal
+          tipo="general"
+          year={currentYear}
+          initialData={{
+            nombre_apellido: ingresoCandidate.name,
+            puesto: search.name,
+            fuente_reclutamiento: ingresoCandidate.consultora || '',
+            fecha_estimada_ingreso: ingresoCandidate.stage_date || '',
+          }}
+          onClose={() => setIngresoCandidate(null)}
+          onAdded={() => setIngresoCandidate(null)}
         />
       )}
     </div>
