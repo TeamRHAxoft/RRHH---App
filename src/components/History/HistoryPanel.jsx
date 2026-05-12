@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { format, startOfWeek, addWeeks } from 'date-fns'
+import { format, startOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, RotateCcw } from 'lucide-react'
+import { X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, RotateCcw, Archive, User } from 'lucide-react'
 
 const STATUS_ICONS = {
   'Hecho': <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />,
@@ -15,8 +15,12 @@ function getCurrentWeekStart() {
 }
 
 export default function HistoryPanel({ onClose }) {
+  const [activeTab, setActiveTab] = useState('semanas')
   const [allTasks, setAllTasks] = useState([])
+  const [closedSearches, setClosedSearches] = useState([])
+  const [closedCandidates, setClosedCandidates] = useState([])
   const [openWeeks, setOpenWeeks] = useState({})
+  const [openSearches, setOpenSearches] = useState({})
   const [loading, setLoading] = useState(true)
   const [restoring, setRestoring] = useState(null)
 
@@ -24,6 +28,7 @@ export default function HistoryPanel({ onClose }) {
 
   useEffect(() => {
     fetchHistory()
+    fetchClosedSearches()
   }, [])
 
   const fetchHistory = async () => {
@@ -35,6 +40,22 @@ export default function HistoryPanel({ onClose }) {
     setAllTasks(data || [])
     setLoading(false)
   }
+
+  const fetchClosedSearches = async () => {
+    const [{ data: s }, { data: c }] = await Promise.all([
+      supabase.from('searches').select('*').eq('status', 'cerrada').order('updated_at', { ascending: false }),
+      supabase.from('candidates').select('*'),
+    ])
+    setClosedSearches(s || [])
+    setClosedCandidates(c || [])
+  }
+
+  const handleReopenSearch = async (id) => {
+    await supabase.from('searches').update({ status: 'activa' }).eq('id', id)
+    fetchClosedSearches()
+  }
+
+  const toggleSearch = (id) => setOpenSearches((prev) => ({ ...prev, [id]: !prev[id] }))
 
   const handleRestore = async (task) => {
     setRestoring(task.id)
@@ -66,17 +87,76 @@ export default function HistoryPanel({ onClose }) {
       {/* Panel */}
       <div className="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div>
-            <h2 className="font-semibold text-gray-800">Historial de semanas</h2>
-            <p className="text-xs text-gray-400 mt-0.5">{weeks.length} semanas registradas</p>
-          </div>
+          <h2 className="font-semibold text-gray-800">Historial</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
             <X className="w-5 h-5" />
           </button>
         </div>
 
+        <div className="flex border-b border-gray-100">
+          <button
+            onClick={() => setActiveTab('semanas')}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${activeTab === 'semanas' ? 'border-b-2 border-brand-600 text-brand-700' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Semanas
+          </button>
+          <button
+            onClick={() => setActiveTab('busquedas')}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${activeTab === 'busquedas' ? 'border-b-2 border-brand-600 text-brand-700' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Búsquedas cerradas {closedSearches.length > 0 && <span className="ml-1 bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-full">{closedSearches.length}</span>}
+          </button>
+        </div>
+
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {loading ? (
+          {activeTab === 'busquedas' ? (
+            closedSearches.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-gray-400">
+                <Archive className="w-10 h-10 mb-3 opacity-30" />
+                <p className="text-sm">No hay búsquedas cerradas.</p>
+              </div>
+            ) : (
+              closedSearches.map((search) => {
+                const candidates = closedCandidates.filter((c) => c.search_id === search.id)
+                const isOpen = openSearches[search.id]
+                return (
+                  <div key={search.id} className="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                    <button
+                      onClick={() => toggleSearch(search.id)}
+                      className="w-full flex items-center justify-between p-3 hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                        <div className="text-left">
+                          <p className="font-medium text-gray-800 text-sm">{search.name}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{candidates.length} candidato{candidates.length !== 1 ? 's' : ''} · {search.type === 'interna' ? 'Interna' : 'Externa'}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleReopenSearch(search.id) }}
+                        className="text-xs text-brand-600 hover:bg-brand-50 px-2 py-1 rounded-lg flex items-center gap-1"
+                        title="Reabrir búsqueda"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Reabrir
+                      </button>
+                    </button>
+                    {isOpen && candidates.length > 0 && (
+                      <div className="border-t border-gray-200 p-3 space-y-1 bg-white">
+                        {candidates.map((c) => (
+                          <div key={c.id} className="flex items-center gap-2 py-1 px-2 rounded-lg">
+                            <User className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                            <span className="text-sm text-gray-700">{c.name}</span>
+                            <span className="text-xs text-gray-400 ml-auto">{c.stage}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })
+            )
+          ) : loading ? (
             <div className="flex items-center justify-center h-48 text-gray-400">Cargando...</div>
           ) : weeks.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-gray-400">

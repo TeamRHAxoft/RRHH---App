@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { ChevronDown, ChevronUp, Plus, Trash2, User, Building2, UserCheck } from 'lucide-react'
+import { ChevronDown, ChevronUp, Plus, Trash2, User, Building2, UserCheck, Archive } from 'lucide-react'
 import AddCandidateModal from './AddCandidateModal'
 import AddIngresoModal from '../Ingresos/AddIngresoModal'
 import { STAGES_EXTERNAL, STAGES_INTERNAL, RESULTADO_OPTIONS } from '../../lib/constants'
@@ -41,6 +41,13 @@ export default function SearchCard({ search, candidates, onRefresh }) {
     }
   }
 
+  const handleCloseSearch = async () => {
+    if (confirm(`¿Cerrar la búsqueda "${search.name}"? Va a quedar en el historial.`)) {
+      await supabase.from('searches').update({ status: 'cerrada' }).eq('id', search.id)
+      onRefresh()
+    }
+  }
+
   const handleDeleteCandidate = async (id) => {
     await supabase.from('candidates').delete().eq('id', id)
     onRefresh()
@@ -64,6 +71,9 @@ export default function SearchCard({ search, candidates, onRefresh }) {
           <p className="text-xs text-gray-400 mt-0.5">{candidates.length} candidato{candidates.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2 ml-2">
+          <button onClick={(e) => { e.stopPropagation(); handleCloseSearch() }} className="text-gray-300 hover:text-amber-400 p-1" title="Cerrar búsqueda">
+            <Archive className="w-3.5 h-3.5" />
+          </button>
           <button onClick={(e) => { e.stopPropagation(); handleDeleteSearch() }} className="text-gray-300 hover:text-red-400 p-1">
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -141,7 +151,7 @@ export default function SearchCard({ search, candidates, onRefresh }) {
                             title="Fecha en esta etapa"
                           />
 
-                          {!isInternal && c.stage === 'Ingreso' && c.stage_date && (
+                          {!isInternal && c.stage === 'Ingreso' && (
                             <button
                               onClick={() => setIngresoCandidate(c)}
                               className="flex items-center gap-1 text-xs bg-green-100 text-green-700 hover:bg-green-200 px-2 py-1 rounded-full font-medium transition-colors"
