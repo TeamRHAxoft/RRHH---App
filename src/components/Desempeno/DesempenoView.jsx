@@ -298,62 +298,17 @@ function AreaTable({ area, year, tipo, trimestre }) {
   )
 }
 
-function FeedbackInformalSection({ year }) {
-  const TRIMESTRES = ['Q1', 'Q2', 'Q3']
-  const [activeQ, setActiveQ] = useState('Q1')
-
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-        {TRIMESTRES.map((q) => (
-          <button
-            key={q}
-            onClick={() => setActiveQ(q)}
-            className={`px-5 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              activeQ === q
-                ? 'bg-white text-brand-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {q}
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-4">
-        {AREAS.map((area) => (
-          <AreaTable key={area} area={area} year={year} tipo="feedback_informal" trimestre={activeQ} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function EvaluacionAnualSection({ year }) {
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 w-fit">
-        Evaluación anual — octubre / noviembre
-      </p>
-      {AREAS.map((area) => (
-        <AreaTable key={area} area={area} year={year} tipo="evaluacion_anual" trimestre={null} />
-      ))}
-    </div>
-  )
-}
-
 export default function DesempenoView() {
   const currentYear = new Date().getFullYear()
   const [year, setYear] = useState(currentYear)
-  const [section, setSection] = useState('feedback')
   const years = Array.from({ length: 4 }, (_, i) => currentYear - 1 + i)
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Evaluación de Desempeño</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Seguimiento por área y mando medio</p>
+          <h2 className="text-xl font-bold text-gray-800">Evaluación de Desempeño Anual</h2>
+          <p className="text-sm text-gray-500 mt-0.5">Octubre / noviembre — seguimiento por área y mando medio</p>
         </div>
         <select
           value={year}
@@ -364,32 +319,12 @@ export default function DesempenoView() {
         </select>
       </div>
 
-      {/* Main section tabs */}
-      <div className="flex border-b border-gray-200">
-        <button
-          onClick={() => setSection('feedback')}
-          className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            section === 'feedback'
-              ? 'border-brand-600 text-brand-700'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Feedback Informal (Trimestral)
-        </button>
-        <button
-          onClick={() => setSection('anual')}
-          className={`px-5 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-            section === 'anual'
-              ? 'border-brand-600 text-brand-700'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Evaluación de Desempeño Anual
-        </button>
+      <div className="space-y-4">
+        {AREAS.map((area) => (
+          <AreaTable key={area} area={area} year={year} tipo="evaluacion_anual" trimestre={null} />
+        ))}
       </div>
-
-      {section === 'feedback' && <FeedbackInformalSection year={year} />}
-      {section === 'anual' && <EvaluacionAnualSection year={year} />}
     </div>
   )
 }
+
