@@ -2,17 +2,19 @@ import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import Login from './components/Auth/Login'
 import Header from './components/Layout/Header'
-import SelectionBoard from './components/Selection/SelectionBoard'
 import WeeklyBoard from './components/Weekly/WeeklyBoard'
 import HistoryView from './components/History/HistoryView'
 import CalendarView from './components/Calendar/CalendarView'
-import { Home, GitMerge, CalendarDays, Archive } from 'lucide-react'
+import BusquedasBoard from './components/Busquedas/BusquedasBoard'
+import IngresosView from './components/Ingresos/IngresosView'
+import { Home, Search, CalendarDays, Archive, UserCheck } from 'lucide-react'
 
 const TABS = [
   { id: 'home', label: 'Inicio', icon: Home },
-  { id: 'selection', label: 'Selección', icon: GitMerge },
+  { id: 'busquedas', label: 'Búsquedas', icon: Search },
   { id: 'weekly', label: 'Semana', icon: CalendarDays },
   { id: 'history', label: 'Historial', icon: Archive },
+  { id: 'ingresos', label: 'Ingresos', icon: UserCheck },
 ]
 
 export default function App() {
@@ -66,9 +68,10 @@ export default function App() {
 
       <main className="flex-1 overflow-y-auto">
         {activeTab === 'home' && <CalendarView />}
-        {activeTab === 'selection' && <SelectionBoard user={session.user} />}
+        {activeTab === 'busquedas' && <BusquedasBoard />}
         {activeTab === 'weekly' && <WeeklyBoard user={session.user} />}
         {activeTab === 'history' && <HistoryView />}
+        {activeTab === 'ingresos' && <IngresosView />}
       </main>
     </div>
   )
