@@ -130,7 +130,6 @@ export default function CalendarView({ user }) {
       .select('*')
       .or(`due_date.gte.${monthStart},week_start.gte.${monthStart}`)
       .or(`due_date.lte.${monthEnd},week_start.lte.${monthEnd}`)
-      .neq('status', 'Hecho')
       .order('created_at', { ascending: true })
     setTasks(data || [])
     setLoading(false)
@@ -271,7 +270,7 @@ export default function CalendarView({ user }) {
       )}
 
       <div className="flex items-center gap-4 text-xs text-gray-500 px-1">
-        {[['bg-gray-400', 'Por hacer'], ['bg-blue-400', 'En progreso']].map(([color, label]) => (
+        {[['bg-gray-400', 'Por hacer'], ['bg-blue-400', 'En progreso'], ['bg-green-400', 'Hecho']].map(([color, label]) => (
           <div key={label} className="flex items-center gap-1.5">
             <div className={`w-2 h-2 rounded-full ${color}`} />
             {label}
