@@ -8,7 +8,7 @@ const STAGES = [
   'Propuesta Laboral', 'Ingreso',
 ]
 
-export default function AddCandidateModal({ searchId, searchName, onClose, onAdded }) {
+export default function AddCandidateModal({ searchId, searchName, isInternal, onClose, onAdded }) {
   const [form, setForm] = useState({ name: '', consultora: '', stage: 'CV Recibido', notes: '' })
   const [loading, setLoading] = useState(false)
 
@@ -49,16 +49,18 @@ export default function AddCandidateModal({ searchId, searchName, onClose, onAdd
               placeholder="Nombre Apellido"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Consultora</label>
-            <input
-              type="text"
-              value={form.consultora}
-              onChange={(e) => setForm({ ...form, consultora: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="Nombre de la consultora"
-            />
-          </div>
+          {!isInternal && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Consultora</label>
+              <input
+                type="text"
+                value={form.consultora}
+                onChange={(e) => setForm({ ...form, consultora: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                placeholder="Nombre de la consultora"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Etapa inicial</label>
             <select
