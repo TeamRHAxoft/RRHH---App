@@ -81,18 +81,20 @@ export default function SelectionBoard() {
         </button>
       </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex gap-3 overflow-x-auto pb-4" style={{ minHeight: '500px' }}>
-          {STAGES.map((stage) => (
-            <StageColumn
-              key={stage}
-              stage={stage}
-              candidates={candidates.filter((c) => c.stage === stage)}
-              onCardClick={setSelectedCandidate}
-            />
-          ))}
-        </div>
-      </DragDropContext>
+      <div className="overflow-x-auto w-full">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="flex gap-3 pb-4" style={{ minWidth: 'max-content', minHeight: '500px' }}>
+            {STAGES.map((stage) => (
+              <StageColumn
+                key={stage}
+                stage={stage}
+                candidates={candidates.filter((c) => c.stage === stage)}
+                onCardClick={setSelectedCandidate}
+              />
+            ))}
+          </div>
+        </DragDropContext>
+      </div>
 
       {showAddModal && (
         <AddCandidateModal
