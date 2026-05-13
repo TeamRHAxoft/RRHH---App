@@ -8,13 +8,15 @@ import BusquedasBoard from './components/Busquedas/BusquedasBoard'
 import IngresosView from './components/Ingresos/IngresosView'
 import DesempenoView from './components/Desempeno/DesempenoView'
 import OnboardingView from './components/Onboarding/OnboardingView'
-import { Home, Search, CalendarDays, UserCheck, ClipboardList, BookOpen } from 'lucide-react'
+import PromocionesView from './components/Promociones/PromocionesView'
+import { Home, Search, CalendarDays, UserCheck, ClipboardList, BookOpen, TrendingUp } from 'lucide-react'
 
 const TABS = [
   { id: 'home', label: 'Inicio', icon: Home },
   { id: 'weekly', label: 'Semana', icon: CalendarDays },
   { id: 'busquedas', label: 'Búsquedas', icon: Search },
   { id: 'ingresos', label: 'Ingresos', icon: UserCheck },
+  { id: 'promociones', label: 'Promociones Internas', icon: TrendingUp },
   { id: 'desempeno', label: 'Evaluación de Desempeño', icon: ClipboardList },
   { id: 'onboarding', label: 'Onboarding', icon: BookOpen },
 ]
@@ -74,6 +76,7 @@ export default function App() {
         {activeTab === 'busquedas' && <BusquedasBoard />}
         {activeTab === 'ingresos' && <IngresosView />}
         {activeTab === 'desempeno' && <DesempenoView />}
+        {activeTab === 'promociones' && <PromocionesView />}
         {activeTab === 'onboarding' && <OnboardingView />}
       </main>
     </div>
