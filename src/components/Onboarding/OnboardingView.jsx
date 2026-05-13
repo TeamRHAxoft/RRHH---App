@@ -19,7 +19,7 @@ const ESTRUCTURA = {
       'Backoffice': {
         equipos: ['Infraestructura','Desarrollo interno'],
         puestosMap: {
-          'Infraestructura': ['Sysadmin'],
+          'Infraestructura': ['Sysadmin','Técnico'],
           'Desarrollo interno': ['Programador','QA'],
         },
       },
