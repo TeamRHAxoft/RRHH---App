@@ -7,7 +7,8 @@ import CalendarView from './components/Calendar/CalendarView'
 import BusquedasBoard from './components/Busquedas/BusquedasBoard'
 import IngresosView from './components/Ingresos/IngresosView'
 import DesempenoView from './components/Desempeno/DesempenoView'
-import { Home, Search, CalendarDays, UserCheck, ClipboardList } from 'lucide-react'
+import OnboardingView from './components/Onboarding/OnboardingView'
+import { Home, Search, CalendarDays, UserCheck, ClipboardList, BookOpen } from 'lucide-react'
 
 const TABS = [
   { id: 'home', label: 'Inicio', icon: Home },
@@ -15,6 +16,7 @@ const TABS = [
   { id: 'busquedas', label: 'Búsquedas', icon: Search },
   { id: 'ingresos', label: 'Ingresos', icon: UserCheck },
   { id: 'desempeno', label: 'Evaluación de Desempeño', icon: ClipboardList },
+  { id: 'onboarding', label: 'Onboarding', icon: BookOpen },
 ]
 
 export default function App() {
@@ -72,6 +74,7 @@ export default function App() {
         {activeTab === 'busquedas' && <BusquedasBoard />}
         {activeTab === 'ingresos' && <IngresosView />}
         {activeTab === 'desempeno' && <DesempenoView />}
+        {activeTab === 'onboarding' && <OnboardingView />}
       </main>
     </div>
   )
