@@ -16,9 +16,9 @@ const TABS = [
   { id: 'weekly', label: 'Semana', icon: CalendarDays },
   { id: 'busquedas', label: 'Búsquedas', icon: Search },
   { id: 'ingresos', label: 'Ingresos', icon: UserCheck },
+  { id: 'onboarding', label: 'Onboarding', icon: BookOpen },
   { id: 'promociones', label: 'Promociones Internas', icon: TrendingUp },
   { id: 'desempeno', label: 'Evaluación de Desempeño', icon: ClipboardList },
-  { id: 'onboarding', label: 'Onboarding', icon: BookOpen },
 ]
 
 export default function App() {
