@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Plus, Trash2, X } from 'lucide-react'
+import { Plus, Trash2, X, BarChart2, Download } from 'lucide-react'
 import { AREAS, SOLICITANTES, PUESTOS } from '../../lib/constants'
 
 function BoolCell({ value, onChange }) {
@@ -124,11 +124,170 @@ function AddPromocionModal({ year, onClose, onAdded }) {
   )
 }
 
+function MetricCard({ label, value, color }) {
+  const colors = {
+    blue:   'bg-blue-50 text-blue-700 border-blue-200',
+    green:  'bg-green-50 text-green-700 border-green-200',
+    orange: 'bg-orange-50 text-orange-700 border-orange-200',
+    red:    'bg-red-50 text-red-600 border-red-200',
+    purple: 'bg-brand-50 text-brand-700 border-brand-200',
+  }
+  return (
+    <div className={`rounded-xl border px-4 py-3 flex flex-col gap-1 ${colors[color]}`}>
+      <span className="text-2xl font-bold">{value}</span>
+      <span className="text-xs font-medium leading-tight">{label}</span>
+    </div>
+  )
+}
+
+function exportCSV(rows, year) {
+  const headers = [
+    'Nombre y apellido','Área anterior','Puesto anterior','Líder anterior',
+    'Fecha ingreso nuevo puesto','Área actual','Puesto actual','Líder actual',
+    'Entrevista status (90 días)','¿Entrevista hecha?','Fecha consulta período de prueba',
+    '¿Consulta enviada?','¿Pasó período de prueba?','Renuncia','Despido',
+  ]
+  const bool = (v) => v === true ? 'Sí' : v === false ? 'No' : ''
+  const csvRows = rows.map((r) => [
+    r.nombre_apellido, r.area_anterior, r.puesto_anterior, r.lider_anterior,
+    r.fecha_nuevo_puesto || '', r.area_actual, r.puesto_actual, r.lider_actual,
+    r.entrevista_status_90dias || '', bool(r.entrevista_status_hecha),
+    r.fecha_envio_consulta_prueba || '', bool(r.consulta_prueba_enviada),
+    bool(r.paso_periodo_prueba), bool(r.renuncia), bool(r.despido),
+  ].map((v) => `"${(v || '').toString().replace(/"/g, '""')}"`).join(','))
+  const csv = [headers.join(','), ...csvRows].join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `promociones_internas_${year}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function ReporteModal({ rows, year, onClose }) {
+  const total = rows.length
+  const pasaron = rows.filter((r) => r.paso_periodo_prueba === true).length
+  const entrevistas = rows.filter((r) => r.entrevista_status_hecha === true).length
+  const renuncias = rows.filter((r) => r.renuncia === true).length
+  const despidos = rows.filter((r) => r.despido === true).length
+
+  const byArea = AREAS.reduce((acc, area) => {
+    const list = rows.filter((r) => r.area_actual === area)
+    if (list.length > 0) acc[area] = list
+    return acc
+  }, {})
+
+  const maxCount = Math.max(...Object.values(byArea).map((l) => l.length), 1)
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
+          <div>
+            <h3 className="font-semibold text-gray-800">Reporte de Promociones Internas</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Año {year} · {total} registro{total !== 1 ? 's' : ''}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="overflow-y-auto p-5 space-y-6">
+          {/* Métricas */}
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Métricas generales</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <MetricCard label="Total promovidos" value={total} color="blue" />
+              <MetricCard label="Pasaron período de prueba" value={pasaron} color="green" />
+              <MetricCard label="Entrevistas de status realizadas" value={entrevistas} color="purple" />
+              <MetricCard label="Renuncias" value={renuncias} color="orange" />
+              <MetricCard label="Despidos" value={despidos} color="red" />
+              {total > 0 && (
+                <MetricCard
+                  label="% aprobación período de prueba"
+                  value={`${Math.round((pasaron / total) * 100)}%`}
+                  color="green"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Desglose por área */}
+          {Object.keys(byArea).length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Desglose por área actual</p>
+              <div className="space-y-2">
+                {Object.entries(byArea)
+                  .sort((a, b) => b[1].length - a[1].length)
+                  .map(([area, list]) => (
+                  <div key={area} className="flex items-center gap-3">
+                    <span className="text-sm text-gray-600 w-36 flex-shrink-0 truncate">{area}</span>
+                    <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
+                      <div
+                        className="h-full bg-brand-400 rounded-full transition-all"
+                        style={{ width: `${(list.length / maxCount) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-semibold text-gray-700 w-4 text-right">{list.length}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Detalle */}
+          {total > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Detalle</p>
+              <div className="border border-gray-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200">
+                      <th className="text-left px-3 py-2 text-xs text-gray-500 font-medium">Nombre</th>
+                      <th className="text-left px-3 py-2 text-xs text-gray-500 font-medium">Área actual</th>
+                      <th className="text-center px-3 py-2 text-xs text-gray-500 font-medium">Prueba</th>
+                      <th className="text-center px-3 py-2 text-xs text-gray-500 font-medium">Renuncia</th>
+                      <th className="text-center px-3 py-2 text-xs text-gray-500 font-medium">Despido</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => (
+                      <tr key={r.id} className="border-b border-gray-100 last:border-0">
+                        <td className="px-3 py-1.5 font-medium text-gray-800">{r.nombre_apellido}</td>
+                        <td className="px-3 py-1.5 text-gray-600">{r.area_actual || <span className="text-gray-300">—</span>}</td>
+                        <td className="px-3 py-1.5 text-center">{r.paso_periodo_prueba === true ? '✓' : r.paso_periodo_prueba === false ? '✗' : '—'}</td>
+                        <td className="px-3 py-1.5 text-center">{r.renuncia === true ? '✓' : '—'}</td>
+                        <td className="px-3 py-1.5 text-center">{r.despido === true ? '✓' : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="border-t p-4 flex-shrink-0">
+          <button
+            onClick={() => exportCSV(rows, year)}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Exportar CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function PromocionesView() {
   const currentYear = new Date().getFullYear()
   const [year, setYear] = useState(currentYear)
   const [rows, setRows] = useState([])
   const [showAdd, setShowAdd] = useState(false)
+  const [showReporte, setShowReporte] = useState(false)
   const [loading, setLoading] = useState(true)
   const years = Array.from({ length: 4 }, (_, i) => currentYear - 1 + i)
 
@@ -182,13 +341,22 @@ export default function PromocionesView() {
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <p className="text-sm text-gray-500">{rows.length} registro{rows.length !== 1 ? 's' : ''} en {year}</p>
-          <button
-            onClick={() => setShowAdd(true)}
-            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Agregar promoción
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowReporte(true)}
+              className="flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <BarChart2 className="w-4 h-4" />
+              Ver reporte
+            </button>
+            <button
+              onClick={() => setShowAdd(true)}
+              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Agregar promoción
+            </button>
+          </div>
         </div>
 
         {loading ? (
@@ -260,6 +428,14 @@ export default function PromocionesView() {
           year={year}
           onClose={() => setShowAdd(false)}
           onAdded={fetchRows}
+        />
+      )}
+
+      {showReporte && (
+        <ReporteModal
+          rows={rows}
+          year={year}
+          onClose={() => setShowReporte(false)}
         />
       )}
     </div>
