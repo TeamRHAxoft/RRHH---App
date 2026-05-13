@@ -158,6 +158,8 @@ export default function PromocionesView() {
   }
 
   const H1 = 'bg-blue-600 text-white text-xs font-semibold px-3 py-2 whitespace-nowrap'
+  const HANT = 'bg-orange-400 text-white text-xs font-semibold px-3 py-2 whitespace-nowrap'
+  const HACT = 'bg-teal-500 text-white text-xs font-semibold px-3 py-2 whitespace-nowrap'
   const H2 = 'bg-brand-100 text-brand-800 text-xs font-semibold px-3 py-2 whitespace-nowrap'
   const CELL = 'px-3 py-2 border-b border-gray-100 align-middle'
 
@@ -197,13 +199,13 @@ export default function PromocionesView() {
               <thead>
                 <tr>
                   <th className={H1}>Nombre y apellido</th>
-                  <th className={H1}>Área anterior</th>
-                  <th className={H1}>Puesto anterior</th>
-                  <th className={H1}>Líder anterior</th>
+                  <th className={HANT}>Área anterior</th>
+                  <th className={HANT}>Puesto anterior</th>
+                  <th className={HANT}>Líder anterior</th>
                   <th className={H1}>Fecha ingreso nuevo puesto</th>
-                  <th className={H1}>Área actual</th>
-                  <th className={H1}>Puesto actual</th>
-                  <th className={H1}>Líder actual</th>
+                  <th className={HACT}>Área actual</th>
+                  <th className={HACT}>Puesto actual</th>
+                  <th className={HACT}>Líder actual</th>
                   <th className={H2}>Entrevista status RH (90 días)</th>
                   <th className={H2}>¿Se hizo entrevista de status?</th>
                   <th className={H2}>Fecha envío consulta período de prueba (3 meses)</th>
