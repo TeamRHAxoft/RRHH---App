@@ -72,9 +72,16 @@ function BoolCell({ value, onChange }) {
   )
 }
 
-function NumberCell({ value, onChange }) {
+const NUMBER_CELL_COLORS = {
+  green:  { bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200'  },
+  red:    { bg: 'bg-red-50',    text: 'text-red-600',    border: 'border-red-200'    },
+  yellow: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200' },
+}
+
+function NumberCell({ value, onChange, color }) {
   const [editing, setEditing] = useState(false)
   const [local, setLocal] = useState(value ?? '')
+  const c = color ? NUMBER_CELL_COLORS[color] : null
 
   const handleBlur = () => {
     setEditing(false)
@@ -92,16 +99,18 @@ function NumberCell({ value, onChange }) {
         onChange={(e) => setLocal(e.target.value)}
         onBlur={handleBlur}
         onKeyDown={(e) => e.key === 'Enter' && handleBlur()}
-        className="text-xs border border-brand-300 rounded px-1 py-1 focus:outline-none w-14 text-center"
+        className={`text-xs border rounded px-1 py-1 focus:outline-none w-14 text-center ${c ? `${c.bg} ${c.text} ${c.border}` : 'border-brand-300'}`}
       />
     )
   }
   return (
     <span
       onClick={() => { setLocal(value ?? ''); setEditing(true) }}
-      className="cursor-pointer text-xs text-gray-700 hover:bg-brand-50 px-1 py-0.5 rounded block text-center min-h-5 min-w-10"
+      className={`cursor-pointer text-xs font-semibold px-2 py-0.5 rounded-full block text-center min-h-5 min-w-10 ${
+        value != null && c ? `${c.bg} ${c.text}` : 'text-gray-400 hover:bg-brand-50'
+      }`}
     >
-      {value ?? <span className="text-gray-300">—</span>}
+      {value ?? '—'}
     </span>
   )
 }
@@ -311,13 +320,13 @@ function AreaTable({ area, year, tipo, trimestre }) {
                       </select>
                     </td>
                     <td className={CELL + ' text-center'}>
-                      <NumberCell value={row.total_completo} onChange={(v) => updateField(row.id, 'total_completo', v)} />
+                      <NumberCell value={row.total_completo} onChange={(v) => updateField(row.id, 'total_completo', v)} color="green" />
                     </td>
                     <td className={CELL + ' text-center'}>
-                      <NumberCell value={row.total_reclamado} onChange={(v) => updateField(row.id, 'total_reclamado', v)} />
+                      <NumberCell value={row.total_reclamado} onChange={(v) => updateField(row.id, 'total_reclamado', v)} color="red" />
                     </td>
                     <td className={CELL + ' text-center'}>
-                      <NumberCell value={row.total_en_proceso} onChange={(v) => updateField(row.id, 'total_en_proceso', v)} />
+                      <NumberCell value={row.total_en_proceso} onChange={(v) => updateField(row.id, 'total_en_proceso', v)} color="yellow" />
                     </td>
                     <td className={CELL + ' text-center'}>
                       <button onClick={() => handleDelete(row.id)} className="text-gray-300 hover:text-red-400">
