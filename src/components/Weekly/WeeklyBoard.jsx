@@ -63,7 +63,9 @@ export default function WeeklyBoard({ user }) {
     } else {
       q = q.eq('week_start', weekKey)
     }
-    q = q.or('archived.eq.false,archived.is.null').order('pinned.desc,created_at.asc')
+    q = q.or('archived.eq.false,archived.is.null')
+      .order('pinned', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: true })
     const { data } = await q
     setTasks(data || [])
     setLoading(false)
