@@ -12,12 +12,12 @@ const EQUIPOS_POR_AREA = {
   'Servicios':      ['Soporte Técnico','Soporte Canal','Soporte Restó','Soporte EECC','Tango University','Recepción Soporte'],
   'Tfactura':       ['Programadores','QA','Comercial/Soporte'],
 }
-const ESTADO_OPTIONS = ['', 'COMPLETO', 'En proceso', 'RECLAMADO']
+const ESTADO_OPTIONS = ['', 'COMPLETO', 'EN PROCESO', 'RECLAMADO']
 const ESTADO_STYLES = {
-  COMPLETO:     'bg-green-100 text-green-700',
-  'En proceso': 'bg-yellow-100 text-yellow-700',
-  RECLAMADO:    'bg-red-100 text-red-600',
-  '':           'bg-gray-50 text-gray-400',
+  COMPLETO:      'bg-green-100 text-green-700',
+  'EN PROCESO':  'bg-yellow-100 text-yellow-700',
+  RECLAMADO:     'bg-red-100 text-red-600',
+  '':            'bg-gray-50 text-gray-400',
 }
 
 function TextCell({ value, onChange }) {
@@ -227,7 +227,7 @@ function AreaTable({ area, year, tipo, trimestre }) {
 
   const totals = {
     completo: rows.filter((r) => r.estado === 'COMPLETO').length,
-    en_proceso: rows.filter((r) => r.estado === 'En proceso').length,
+    en_proceso: rows.filter((r) => r.estado === 'EN PROCESO').length,
     reclamado: rows.filter((r) => r.estado === 'RECLAMADO').length,
   }
 
