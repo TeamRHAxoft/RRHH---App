@@ -269,6 +269,8 @@ function AreaTable({ area, year, tipo, trimestre }) {
               <col className="w-16" />
               <col className="w-16" />
               <col className="w-16" />
+              <col className="w-16" />
+              <col className="w-16" />
               <col className="w-8" />
             </colgroup>
             <thead>
@@ -279,16 +281,18 @@ function AreaTable({ area, year, tipo, trimestre }) {
                 <th className={H + ' text-center'}>Per. de prueba</th>
                 <th className={H}>Eval. faltante</th>
                 <th className={H}>Estado</th>
+                <th className={H + ' text-center'}>Total equipo</th>
                 <th className={H + ' text-center'}>Completo</th>
                 <th className={H + ' text-center'}>EN PROCESO</th>
                 <th className={H + ' text-center'}>Reclamado</th>
+                <th className={H + ' text-center'}>Faltan</th>
                 <th className="bg-gray-100 text-gray-500 text-xs font-semibold px-2 py-2"></th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center text-gray-400 text-sm py-8">
+                  <td colSpan={12} className="text-center text-gray-400 text-sm py-8">
                     Sin datos. Hacé clic en "Agregar".
                   </td>
                 </tr>
@@ -320,6 +324,9 @@ function AreaTable({ area, year, tipo, trimestre }) {
                       </select>
                     </td>
                     <td className={CELL + ' text-center'}>
+                      <NumberCell value={row.total_equipo} onChange={(v) => updateField(row.id, 'total_equipo', v)} />
+                    </td>
+                    <td className={CELL + ' text-center'}>
                       <NumberCell value={row.total_completo} onChange={(v) => updateField(row.id, 'total_completo', v)} color="green" />
                     </td>
                     <td className={CELL + ' text-center'}>
@@ -327,6 +334,23 @@ function AreaTable({ area, year, tipo, trimestre }) {
                     </td>
                     <td className={CELL + ' text-center'}>
                       <NumberCell value={row.total_reclamado} onChange={(v) => updateField(row.id, 'total_reclamado', v)} color="red" />
+                    </td>
+                    <td className={CELL + ' text-center'}>
+                      {(() => {
+                        const faltan = row.total_equipo != null && row.total_completo != null
+                          ? row.total_equipo - row.total_completo
+                          : null
+                        return (
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                            faltan == null ? 'text-gray-300' :
+                            faltan === 0 ? 'bg-green-100 text-green-700' :
+                            faltan > 0 ? 'bg-orange-100 text-orange-700' :
+                            'bg-gray-100 text-gray-500'
+                          }`}>
+                            {faltan == null ? '—' : faltan}
+                          </span>
+                        )
+                      })()}
                     </td>
                     <td className={CELL + ' text-center'}>
                       <button onClick={() => handleDelete(row.id)} className="text-gray-300 hover:text-red-400">
