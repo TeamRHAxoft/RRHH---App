@@ -144,11 +144,27 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                     <span>{task.assigned_to}</span>
                   </div>
                 )}
-                {task.created_by && task.created_by !== task.assigned_to && (
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <span>por {task.created_by}</span>
-                  </div>
-                )}
+                {task.created_by && task.created_by !== task.assigned_to && (() => {
+                  const assignedToMe = isOwn
+                  const assignedByMe = task.created_by === currentProfile?.display_name
+                  if (assignedToMe && !assignedByMe) {
+                    return (
+                      <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded-full font-medium">
+                        ← de {task.created_by}
+                      </span>
+                    )
+                  }
+                  if (!assignedToMe && assignedByMe) {
+                    return (
+                      <span className="text-xs bg-brand-50 text-brand-500 border border-brand-200 px-1.5 py-0.5 rounded-full font-medium">
+                        → vos
+                      </span>
+                    )
+                  }
+                  return (
+                    <span className="text-xs text-gray-400">de {task.created_by}</span>
+                  )
+                })()}
               </div>
             </div>
           )}
