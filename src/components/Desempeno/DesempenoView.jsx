@@ -280,8 +280,8 @@ function AreaTable({ area, year, tipo, trimestre }) {
                 <th className={H}>Eval. faltante</th>
                 <th className={H}>Estado</th>
                 <th className={H + ' text-center'}>Completo</th>
+                <th className={H + ' text-center'}>EN PROCESO</th>
                 <th className={H + ' text-center'}>Reclamado</th>
-                <th className={H + ' text-center'}>En proceso</th>
                 <th className="bg-gray-100 text-gray-500 text-xs font-semibold px-2 py-2"></th>
               </tr>
             </thead>
@@ -323,10 +323,10 @@ function AreaTable({ area, year, tipo, trimestre }) {
                       <NumberCell value={row.total_completo} onChange={(v) => updateField(row.id, 'total_completo', v)} color="green" />
                     </td>
                     <td className={CELL + ' text-center'}>
-                      <NumberCell value={row.total_reclamado} onChange={(v) => updateField(row.id, 'total_reclamado', v)} color="red" />
+                      <NumberCell value={row.total_en_proceso} onChange={(v) => updateField(row.id, 'total_en_proceso', v)} color="yellow" />
                     </td>
                     <td className={CELL + ' text-center'}>
-                      <NumberCell value={row.total_en_proceso} onChange={(v) => updateField(row.id, 'total_en_proceso', v)} color="yellow" />
+                      <NumberCell value={row.total_reclamado} onChange={(v) => updateField(row.id, 'total_reclamado', v)} color="red" />
                     </td>
                     <td className={CELL + ' text-center'}>
                       <button onClick={() => handleDelete(row.id)} className="text-gray-300 hover:text-red-400">
