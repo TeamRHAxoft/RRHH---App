@@ -3,6 +3,15 @@ import { supabase } from '../../lib/supabase'
 import { Plus, Trash2 } from 'lucide-react'
 
 const AREAS = ['Desarrollo', 'Comercial', 'Administración', 'Backoffice', 'Servicios', 'Tfactura']
+
+const EQUIPOS_POR_AREA = {
+  'Desarrollo':     ['EECC','Framework','Plataforma','Restó','Nexo/Empleados','E-commerce','TeamQ','Pedidos','Pagos digitales','Facturador','Ventas','Stock','Tesorería','Compras'],
+  'Comercial':      ['Venta Canal','Venta Directa'],
+  'Administración': [],
+  'Backoffice':     ['Infraestructura','Desarrollo interno'],
+  'Servicios':      ['Soporte EECC','Soporte Canal','Soporte Técnico','Soporte ERP','Soporte Restó','Tango University','Recepción Soporte'],
+  'Tfactura':       ['Desarrollo','Soporte','Comercial','Diseño','Funcional'],
+}
 const ESTADO_OPTIONS = ['', 'COMPLETO', 'En proceso', 'RECLAMADO']
 const ESTADO_STYLES = {
   COMPLETO:     'bg-green-100 text-green-700',
@@ -97,8 +106,9 @@ function NumberCell({ value, onChange }) {
   )
 }
 
-function AddManagerModal({ area, year, tipo, trimestre, onClose, onAdded }) {
-  const [nombre, setNombre] = useState('')
+function AddEquipoModal({ area, year, tipo, trimestre, onClose, onAdded }) {
+  const equipos = EQUIPOS_POR_AREA[area] || []
+  const [nombre, setNombre] = useState(equipos.length > 0 ? equipos[0] : '')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -116,20 +126,32 @@ function AddManagerModal({ area, year, tipo, trimestre, onClose, onAdded }) {
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
         <div className="flex items-center justify-between p-5 border-b">
-          <h3 className="font-semibold text-gray-800">Agregar mando medio</h3>
+          <h3 className="font-semibold text-gray-800">Agregar equipo — {area}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-            <input
-              autoFocus
-              required
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="Nombre del mando medio"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Equipo *</label>
+            {equipos.length > 0 ? (
+              <select
+                autoFocus
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+              >
+                {equipos.map((e) => <option key={e} value={e}>{e}</option>)}
+              </select>
+            ) : (
+              <input
+                autoFocus
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                placeholder="Nombre del equipo"
+              />
+            )}
           </div>
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">Cancelar</button>
@@ -205,7 +227,7 @@ function AreaTable({ area, year, tipo, trimestre }) {
           className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
-          Agregar
+          Agregar equipo
         </button>
       </div>
 
@@ -216,7 +238,7 @@ function AreaTable({ area, year, tipo, trimestre }) {
           <table className="w-full border-collapse" style={{ minWidth: '1100px' }}>
             <thead>
               <tr>
-                <th className={H}>Mando medio</th>
+                <th className={H}>Equipo</th>
                 <th className={H}>¿Evaluaciones subidas?</th>
                 <th className={H}>¿Feedback de colaboradores?</th>
                 <th className={H}>¿Período de prueba subido?</th>
@@ -285,7 +307,7 @@ function AreaTable({ area, year, tipo, trimestre }) {
       )}
 
       {showAdd && (
-        <AddManagerModal
+        <AddEquipoModal
           area={area}
           year={year}
           tipo={tipo}
@@ -308,7 +330,7 @@ export default function DesempenoView() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-800">Evaluación de Desempeño Anual</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Octubre / noviembre — seguimiento por área y mando medio</p>
+          <p className="text-sm text-gray-500 mt-0.5">Octubre / noviembre — seguimiento por área y equipo</p>
         </div>
         <select
           value={year}
