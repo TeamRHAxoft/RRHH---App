@@ -32,6 +32,7 @@ export default function WeeklyBoard({ user }) {
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 })
   const weekLabel = `${format(weekStart, "d 'de' MMMM", { locale: es })} — ${format(weekEnd, "d 'de' MMMM", { locale: es })}`
   const weekKey = format(weekStart, 'yyyy-MM-dd')
+  const currentWeekKey = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
   const isCurrentWeek = weekOffset === 0
 
   useEffect(() => {
@@ -56,11 +57,14 @@ export default function WeeklyBoard({ user }) {
 
   const fetchTasks = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('week_start', weekKey)
-      .order('created_at', { ascending: true })
+    let q = supabase.from('tasks').select('*')
+    if (isCurrentWeek) {
+      q = q.or(`week_start.eq.${weekKey},pinned.eq.true`)
+    } else {
+      q = q.eq('week_start', weekKey)
+    }
+    q = q.or('archived.eq.false,archived.is.null').order('pinned.desc,created_at.asc')
+    const { data } = await q
     setTasks(data || [])
     setLoading(false)
   }
@@ -82,6 +86,21 @@ export default function WeeklyBoard({ user }) {
 
   const handleUpdate = async (id, updates) => {
     await supabase.from('tasks').update({ ...updates, updated_at: new Date() }).eq('id', id)
+  }
+
+  const handleTogglePin = async (id, currentPinned) => {
+    await supabase.from('tasks').update({ pinned: !currentPinned, updated_at: new Date() }).eq('id', id)
+    fetchTasks()
+  }
+
+  const handleArchive = async (id) => {
+    await supabase.from('tasks').update({ archived: true, pinned: false, updated_at: new Date() }).eq('id', id)
+    fetchTasks()
+  }
+
+  const handleMoveToCurrentWeek = async (id) => {
+    await supabase.from('tasks').update({ week_start: currentWeekKey, updated_at: new Date() }).eq('id', id)
+    fetchTasks()
   }
 
   if (loading) {
@@ -142,6 +161,9 @@ export default function WeeklyBoard({ user }) {
               tasks={tasks.filter((t) => t.status === status)}
               onDelete={handleDelete}
               onUpdate={handleUpdate}
+              onTogglePin={handleTogglePin}
+              onArchive={handleArchive}
+              onMoveToCurrentWeek={handleMoveToCurrentWeek}
               readOnly={!isCurrentWeek}
               currentProfile={currentProfile}
               profiles={profiles}

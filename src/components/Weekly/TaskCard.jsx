@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
-import { Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft } from 'lucide-react'
 
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
@@ -22,7 +22,7 @@ function Avatar({ name, size = 'sm' }) {
   )
 }
 
-export default function TaskCard({ task, index, onDelete, onUpdate, readOnly, currentProfile, profiles }) {
+export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin, onArchive, onMoveToCurrentWeek, readOnly, currentProfile, profiles }) {
   const [expanded, setExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: task.title, description: task.description || '', assigned_to: task.assigned_to || '' })
@@ -49,7 +49,7 @@ export default function TaskCard({ task, index, onDelete, onUpdate, readOnly, cu
           {...provided.dragHandleProps}
           className={`rounded-lg border transition-all ${
             snapshot.isDragging ? 'border-brand-400 shadow-lg bg-white' : `${CARD_STYLES[task.status] || CARD_STYLES['Por hacer']} hover:border-brand-200`
-          }`}
+          } ${task.pinned ? 'ring-1 ring-brand-300' : ''}`}
         >
           {editing ? (
             <div className="p-3 space-y-2">
@@ -83,22 +83,52 @@ export default function TaskCard({ task, index, onDelete, onUpdate, readOnly, cu
           ) : (
             <div className="p-3">
               <div className="flex items-start justify-between gap-2">
-                <p
-                  className="text-sm font-medium text-gray-800 flex-1 cursor-pointer"
-                  onClick={() => !readOnly && setEditing(true)}
-                >
-                  {task.title}
-                </p>
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                  {task.pinned && <Pin className="w-3 h-3 text-brand-400 flex-shrink-0" />}
+                  <p
+                    className="text-sm font-medium text-gray-800 cursor-pointer"
+                    onClick={() => !readOnly && setEditing(true)}
+                  >
+                    {task.title}
+                  </p>
+                </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {task.description && (
                     <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-gray-600">
                       {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                   )}
-                  {!readOnly && (
-                    <button onClick={handleDelete} className="text-gray-300 hover:text-red-400">
-                      <Trash2 className="w-3.5 h-3.5" />
+                  {readOnly ? (
+                    <button
+                      onClick={() => onMoveToCurrentWeek && onMoveToCurrentWeek(task.id)}
+                      title="Mover a semana actual"
+                      className="text-gray-300 hover:text-brand-500 p-0.5"
+                    >
+                      <CornerUpLeft className="w-3.5 h-3.5" />
                     </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => onTogglePin && onTogglePin(task.id, task.pinned)}
+                        title={task.pinned ? 'Desfijar' : 'Fijar en todas las semanas'}
+                        className={`p-0.5 ${task.pinned ? 'text-brand-400 hover:text-brand-600' : 'text-gray-300 hover:text-brand-400'}`}
+                      >
+                        <Pin className="w-3.5 h-3.5" />
+                      </button>
+                      {task.pinned ? (
+                        <button
+                          onClick={() => onArchive && onArchive(task.id)}
+                          title="Archivar en historial"
+                          className="text-gray-300 hover:text-orange-400 p-0.5"
+                        >
+                          <Archive className="w-3.5 h-3.5" />
+                        </button>
+                      ) : (
+                        <button onClick={handleDelete} className="text-gray-300 hover:text-red-400 p-0.5">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
