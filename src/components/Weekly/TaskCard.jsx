@@ -5,7 +5,7 @@ import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft } from 'luci
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
 const CARD_STYLES = {
-  'Por hacer':   'bg-white border-gray-200',
+  'Por hacer':   'bg-amber-50 border-amber-200',
   'En progreso': 'bg-blue-50 border-blue-200',
   'Hecho':       'bg-green-50 border-green-200',
 }

@@ -10,7 +10,7 @@ import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 const STATUSES = ['Por hacer', 'En progreso', 'Hecho']
 
 const STATUS_COLORS = {
-  'Por hacer': 'bg-gray-100 border-gray-300 text-gray-600',
+  'Por hacer': 'bg-amber-100 border-amber-300 text-amber-700',
   'En progreso': 'bg-blue-50 border-blue-300 text-blue-700',
   'Hecho': 'bg-green-50 border-green-300 text-green-700',
 }

@@ -8,18 +8,18 @@ import { es } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
 
 const STATUS_TEXT = {
-  'Por hacer': 'text-gray-600 bg-gray-100',
+  'Por hacer': 'text-amber-700 bg-amber-100',
   'En progreso': 'text-blue-700 bg-blue-100',
   'Hecho': 'text-green-700 bg-green-100',
 }
 
 const DETAIL_STYLES = {
-  'Por hacer':   'bg-gray-50 border border-gray-200',
+  'Por hacer':   'bg-amber-50 border border-amber-200',
   'En progreso': 'bg-blue-50 border border-blue-200',
   'Hecho':       'bg-green-50 border border-green-200',
 }
 const STATUS_COLORS = {
-  'Por hacer': 'bg-gray-400',
+  'Por hacer': 'bg-amber-400',
   'En progreso': 'bg-blue-400',
   'Hecho': 'bg-green-400',
 }
@@ -286,7 +286,7 @@ export default function CalendarView({ user }) {
       )}
 
       <div className="flex items-center gap-4 text-xs text-gray-500 px-1">
-        {[['bg-gray-400', 'Por hacer'], ['bg-blue-400', 'En progreso'], ['bg-green-400', 'Hecho']].map(([color, label]) => (
+        {[['bg-amber-400', 'Por hacer'], ['bg-blue-400', 'En progreso'], ['bg-green-400', 'Hecho']].map(([color, label]) => (
           <div key={label} className="flex items-center gap-1.5">
             <div className={`w-2 h-2 rounded-full ${color}`} />
             {label}
