@@ -282,9 +282,9 @@ function AreaTable({ area, year, tipo, trimestre }) {
                 <th className={H}>Eval. faltante</th>
                 <th className={H}>Estado</th>
                 <th className={H + ' text-center'}>Total equipo</th>
-                <th className={H + ' text-center'}>Completo</th>
+                <th className={H + ' text-center'}>COMPLETO</th>
                 <th className={H + ' text-center'}>EN PROCESO</th>
-                <th className={H + ' text-center'}>Reclamado</th>
+                <th className={H + ' text-center'}>RECLAMADO</th>
                 <th className={H + ' text-center'}>Faltan</th>
                 <th className="bg-gray-100 text-gray-500 text-xs font-semibold px-2 py-2"></th>
               </tr>
