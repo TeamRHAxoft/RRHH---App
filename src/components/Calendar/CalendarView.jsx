@@ -5,7 +5,7 @@ import {
   addDays, addMonths, subMonths, isSameMonth, isToday, isSameDay
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X, Pencil } from 'lucide-react'
 
 const STATUS_TEXT = {
   'Por hacer': 'text-amber-700 bg-amber-100',
@@ -120,12 +120,95 @@ function AddTaskModal({ date, currentUser, profiles, onClose, onAdded }) {
   )
 }
 
+function EditTaskModal({ task, profiles, onClose, onSaved }) {
+  const [form, setForm] = useState({
+    title: task.title || '',
+    description: task.description || '',
+    status: task.status || 'Por hacer',
+    assigned_to: task.assigned_to || '',
+  })
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    await supabase.from('tasks').update({ ...form, updated_at: new Date() }).eq('id', task.id)
+    onSaved({ ...task, ...form })
+    onClose()
+    setLoading(false)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between p-5 border-b">
+          <h3 className="font-semibold text-gray-800">Editar tarea</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tarea *</label>
+            <input
+              autoFocus
+              required
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={2}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            >
+              <option>Por hacer</option>
+              <option>En progreso</option>
+              <option>Hecho</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Asignado a</label>
+            <select
+              value={form.assigned_to}
+              onChange={(e) => setForm({ ...form, assigned_to: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            >
+              <option value="">— Sin asignar —</option>
+              {(profiles || []).map((p) => (
+                <option key={p.id} value={p.display_name}>{p.display_name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">Cancelar</button>
+            <button type="submit" disabled={loading} className="flex-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50">
+              {loading ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function CalendarView({ user }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [tasks, setTasks] = useState([])
   const [profiles, setProfiles] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingTask, setEditingTask] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -273,10 +356,18 @@ export default function CalendarView({ user }) {
                 const assignedToMe = isOwn && task.created_by && task.created_by !== task.assigned_to
                 const assignedByMe = task.created_by === currentProfile?.display_name && !isOwn
                 return (
-                  <div key={task.id} className={`flex items-start gap-3 p-2 rounded-lg ${DETAIL_STYLES[task.status] || DETAIL_STYLES['Por hacer']}`}>
+                  <div key={task.id} className={`flex items-start gap-3 p-2 rounded-lg group ${DETAIL_STYLES[task.status] || DETAIL_STYLES['Por hacer']}`}>
                     <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800">{task.title}</p>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-gray-800">{task.title}</p>
+                        <button
+                          onClick={() => setEditingTask(task)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-brand-500 flex-shrink-0"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                       {task.description && <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>}
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         {task.assigned_to && (
@@ -315,6 +406,18 @@ export default function CalendarView({ user }) {
           </div>
         ))}
       </div>
+
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          profiles={profiles}
+          onClose={() => setEditingTask(null)}
+          onSaved={(updated) => {
+            setTasks((prev) => prev.map((t) => t.id === updated.id ? updated : t))
+            setEditingTask(null)
+          }}
+        />
+      )}
 
       {showAddModal && selectedDay && (
         <AddTaskModal

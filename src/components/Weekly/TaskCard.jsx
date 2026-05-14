@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
-import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil } from 'lucide-react'
 
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
@@ -85,12 +85,12 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-1.5 flex-1 min-w-0">
                   {task.pinned && <Pin className="w-3 h-3 text-brand-400 flex-shrink-0" />}
-                  <p
-                    className="text-sm font-medium text-gray-800 cursor-pointer"
-                    onClick={() => !readOnly && setEditing(true)}
-                  >
-                    {task.title}
-                  </p>
+                  <p className="text-sm font-medium text-gray-800 flex-1">{task.title}</p>
+                  {!readOnly && (
+                    <button onClick={() => setEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-brand-500 flex-shrink-0">
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {task.description && (
