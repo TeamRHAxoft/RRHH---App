@@ -172,21 +172,35 @@ function AreaTable({ area, year, tipo, trimestre }) {
 
   useEffect(() => { fetchRows() }, [area, year, tipo, trimestre])
 
-  const fetchRows = async () => {
-    setLoading(true)
-    let query = supabase
+  const buildQuery = () => {
+    let q = supabase
       .from('evaluacion_desempeno')
       .select('*')
       .eq('area', area)
       .eq('year', year)
       .eq('tipo', tipo)
       .order('created_at', { ascending: true })
+    if (trimestre) q = q.eq('trimestre', trimestre)
+    else q = q.is('trimestre', null)
+    return q
+  }
 
-    if (trimestre) query = query.eq('trimestre', trimestre)
-    else query = query.is('trimestre', null)
+  const fetchRows = async () => {
+    setLoading(true)
+    const { data } = await buildQuery()
 
-    const { data } = await query
-    setRows(data || [])
+    if ((data || []).length === 0 && (EQUIPOS_POR_AREA[area] || []).length > 0) {
+      const toInsert = EQUIPOS_POR_AREA[area].map((equipo) => ({
+        area, year, tipo,
+        trimestre: trimestre || null,
+        nombre_mando_medio: equipo,
+      }))
+      await supabase.from('evaluacion_desempeno').insert(toInsert)
+      const { data: seeded } = await buildQuery()
+      setRows(seeded || [])
+    } else {
+      setRows(data || [])
+    }
     setLoading(false)
   }
 
