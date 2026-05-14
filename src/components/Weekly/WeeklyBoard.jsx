@@ -43,7 +43,7 @@ export default function WeeklyBoard({ user }) {
     fetchTasks()
     const channel = supabase
       .channel('tasks-weekly')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, fetchTasks)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => fetchTasks({ silent: true }))
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [weekOffset])
@@ -55,8 +55,8 @@ export default function WeeklyBoard({ user }) {
     setCurrentProfile(mine || null)
   }
 
-  const fetchTasks = async () => {
-    setLoading(true)
+  const fetchTasks = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true)
     let q = supabase.from('tasks').select('*')
     if (isCurrentWeek) {
       q = q.or(`week_start.eq.${weekKey},pinned.eq.true`)
@@ -68,7 +68,7 @@ export default function WeeklyBoard({ user }) {
       .order('created_at', { ascending: true })
     const { data } = await q
     setTasks(data || [])
-    setLoading(false)
+    if (!silent) setLoading(false)
   }
 
   const onDragEnd = async (result) => {
@@ -83,26 +83,36 @@ export default function WeeklyBoard({ user }) {
   }
 
   const handleDelete = async (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id))
     await supabase.from('tasks').delete().eq('id', id)
   }
 
   const handleUpdate = async (id, updates) => {
+    setTasks((prev) => prev.map((t) => t.id === id ? { ...t, ...updates } : t))
     await supabase.from('tasks').update({ ...updates, updated_at: new Date() }).eq('id', id)
   }
 
   const handleTogglePin = async (id, currentPinned) => {
+    setTasks((prev) => prev.map((t) => t.id === id ? { ...t, pinned: !currentPinned } : t))
     await supabase.from('tasks').update({ pinned: !currentPinned, updated_at: new Date() }).eq('id', id)
-    fetchTasks()
   }
 
   const handleArchive = async (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id))
     await supabase.from('tasks').update({ archived: true, pinned: false, updated_at: new Date() }).eq('id', id)
-    fetchTasks()
   }
 
   const handleMoveToCurrentWeek = async (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id))
     await supabase.from('tasks').update({ week_start: currentWeekKey, updated_at: new Date() }).eq('id', id)
-    fetchTasks()
+  }
+
+  const handleTaskAdded = async (taskData) => {
+    const tempId = `temp-${Date.now()}`
+    const optimistic = { ...taskData, id: tempId, pinned: false, archived: false, created_at: new Date().toISOString() }
+    setTasks((prev) => [...prev, optimistic])
+    const { data } = await supabase.from('tasks').insert([taskData]).select().single()
+    if (data) setTasks((prev) => prev.map((t) => t.id === tempId ? data : t))
   }
 
   if (loading) {
@@ -180,7 +190,7 @@ export default function WeeklyBoard({ user }) {
           currentProfile={currentProfile}
           profiles={profiles}
           onClose={() => setShowAddModal(false)}
-          onAdded={fetchTasks}
+          onAdded={handleTaskAdded}
         />
       )}
     </div>

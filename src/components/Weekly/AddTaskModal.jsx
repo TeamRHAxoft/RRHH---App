@@ -13,18 +13,16 @@ export default function AddTaskModal({ weekStart, currentProfile, profiles, onCl
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    await supabase.from('tasks').insert([{
+    const taskData = {
       title: form.title,
       description: form.description,
       status: form.status,
       assigned_to: form.assigned_to,
       created_by: currentProfile?.display_name || '',
       week_start: weekStart,
-    }])
-    onAdded()
+    }
     onClose()
-    setLoading(false)
+    onAdded(taskData)
   }
 
   return (
