@@ -28,7 +28,7 @@ function getWeekStart(date) {
   return format(startOfWeek(date, { weekStartsOn: 1 }), 'yyyy-MM-dd')
 }
 
-function AddTaskModal({ date, currentUser, onClose, onAdded }) {
+function AddTaskModal({ date, currentUser, profiles, onClose, onAdded }) {
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -97,12 +97,16 @@ function AddTaskModal({ date, currentUser, onClose, onAdded }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Asignado a</label>
-            <input
-              type="text"
+            <select
               value={form.assigned_to}
               onChange={(e) => setForm({ ...form, assigned_to: e.target.value })}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-            />
+            >
+              <option value="">— Sin asignar —</option>
+              {(profiles || []).map((p) => (
+                <option key={p.id} value={p.display_name}>{p.display_name}</option>
+              ))}
+            </select>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">Cancelar</button>
@@ -119,9 +123,15 @@ function AddTaskModal({ date, currentUser, onClose, onAdded }) {
 export default function CalendarView({ user }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [tasks, setTasks] = useState([])
+  const [profiles, setProfiles] = useState([])
   const [selectedDay, setSelectedDay] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase.from('profiles').select('*').order('display_name')
+      .then(({ data }) => setProfiles(data || []))
+  }, [])
 
   useEffect(() => {
     fetchTasks()
@@ -288,6 +298,7 @@ export default function CalendarView({ user }) {
         <AddTaskModal
           date={selectedDay}
           currentUser={user?.email}
+          profiles={profiles}
           onClose={() => setShowAddModal(false)}
           onAdded={() => { fetchTasks(); setShowAddModal(false) }}
         />
