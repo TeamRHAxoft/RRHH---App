@@ -222,18 +222,18 @@ function AreaTable({ area, year, tipo, trimestre }) {
     reclamado: rows.filter((r) => r.estado === 'RECLAMADO').length,
   }
 
-  const H = 'bg-blue-600 text-white text-xs font-semibold px-3 py-2 whitespace-nowrap'
-  const CELL = 'px-3 py-2 border-b border-gray-100 align-middle'
+  const H = 'bg-blue-600 text-white text-xs font-semibold px-2 py-2 whitespace-nowrap'
+  const CELL = 'px-2 py-1.5 border-b border-gray-100 align-middle'
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <div className="flex items-center gap-4">
           <h3 className="font-semibold text-gray-800">{area}</h3>
-          <div className="flex gap-3 text-xs">
-            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Completo: {totals.completo}</span>
-            <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">En proceso: {totals.en_proceso}</span>
-            <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">Reclamado: {totals.reclamado}</span>
+          <div className="flex gap-2 text-xs">
+            <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">✓ {totals.completo}</span>
+            <span className="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium">⏳ {totals.en_proceso}</span>
+            <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-medium">! {totals.reclamado}</span>
           </div>
         </div>
         <button
@@ -241,7 +241,7 @@ function AreaTable({ area, year, tipo, trimestre }) {
           className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
-          Agregar equipo
+          Agregar
         </button>
       </div>
 
@@ -249,19 +249,31 @@ function AreaTable({ area, year, tipo, trimestre }) {
         <div className="flex items-center justify-center h-24 text-gray-400 text-sm">Cargando...</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse" style={{ minWidth: '1100px' }}>
+          <table className="w-full border-collapse">
+            <colgroup>
+              <col className="w-36" />
+              <col className="w-20" />
+              <col className="w-20" />
+              <col className="w-28" />
+              <col />
+              <col className="w-28" />
+              <col className="w-16" />
+              <col className="w-16" />
+              <col className="w-16" />
+              <col className="w-8" />
+            </colgroup>
             <thead>
               <tr>
                 <th className={H}>Equipo</th>
-                <th className={H}>¿Evaluaciones subidas?</th>
-                <th className={H}>¿Feedback de colaboradores?</th>
-                <th className={H}>¿Período de prueba subido?</th>
-                <th className={H}>¿Cuál evaluación falta?</th>
+                <th className={H + ' text-center'}>Eval. subidas</th>
+                <th className={H + ' text-center'}>Feedback</th>
+                <th className={H + ' text-center'}>Per. de prueba</th>
+                <th className={H}>Eval. faltante</th>
                 <th className={H}>Estado</th>
-                <th className={H + ' text-center'}>Total Completo</th>
-                <th className={H + ' text-center'}>Total Reclamado</th>
-                <th className={H + ' text-center'}>Total En proceso</th>
-                <th className="bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-2"></th>
+                <th className={H + ' text-center'}>Completo</th>
+                <th className={H + ' text-center'}>Reclamado</th>
+                <th className={H + ' text-center'}>En proceso</th>
+                <th className="bg-gray-100 text-gray-500 text-xs font-semibold px-2 py-2"></th>
               </tr>
             </thead>
             <tbody>
