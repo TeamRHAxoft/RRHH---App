@@ -5,12 +5,12 @@ import { Plus, Trash2 } from 'lucide-react'
 const AREAS = ['Desarrollo', 'Comercial', 'Administración', 'Backoffice', 'Servicios', 'Tfactura']
 
 const EQUIPOS_POR_AREA = {
-  'Desarrollo':     ['EECC','Framework','Plataforma','Restó','Nexo/Empleados','E-commerce','TeamQ','Pedidos','Pagos digitales','Facturador','Ventas','Stock','Tesorería','Compras'],
-  'Comercial':      ['Venta Canal','Venta Directa'],
-  'Administración': [],
-  'Backoffice':     ['Infraestructura','Desarrollo interno'],
-  'Servicios':      ['Soporte EECC','Soporte Canal','Soporte Técnico','Soporte ERP','Soporte Restó','Tango University','Recepción Soporte'],
-  'Tfactura':       ['Desarrollo','Soporte','Comercial','Diseño','Funcional'],
+  'Desarrollo':     ['EECC (AB)','EECC (JV)','EECC (AR)','Plataforma','Restó','Nexo','Empleados','TeamQ','E-Commerce','Framework','ERP Stock','ERP Tesorería','ERP Compras','Ventas','Facturador (MF)','Facturador (LY)','Pagos digitales','Pedidos'],
+  'Comercial':      ['Venta Directa','Venta Canal'],
+  'Administración': ['Administración'],
+  'Backoffice':     ['Desarrollo interno','Infraestructura'],
+  'Servicios':      ['Soporte Técnico','Soporte Canal','Soporte Restó','Soporte EECC','Tango University','Recepción Soporte'],
+  'Tfactura':       ['Programadores','QA','Comercial/Soporte'],
 }
 const ESTADO_OPTIONS = ['', 'COMPLETO', 'En proceso', 'RECLAMADO']
 const ESTADO_STYLES = {
