@@ -267,19 +267,41 @@ export default function CalendarView({ user }) {
             <p className="text-sm text-gray-400">No hay tareas pendientes para este día.</p>
           ) : (
             <div className="space-y-2">
-              {selectedDayTasks.map((task) => (
-                <div key={task.id} className={`flex items-start gap-3 p-2 rounded-lg ${DETAIL_STYLES[task.status] || DETAIL_STYLES['Por hacer']}`}>
-                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800">{task.title}</p>
-                    {task.description && <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>}
-                    {task.assigned_to && <p className="text-xs text-brand-500 mt-0.5">{task.assigned_to.split('@')[0]}</p>}
+              {selectedDayTasks.map((task) => {
+                const currentProfile = profiles.find(p => p.id === user?.id)
+                const isOwn = task.assigned_to === currentProfile?.display_name
+                const assignedToMe = isOwn && task.created_by && task.created_by !== task.assigned_to
+                const assignedByMe = task.created_by === currentProfile?.display_name && !isOwn
+                return (
+                  <div key={task.id} className={`flex items-start gap-3 p-2 rounded-lg ${DETAIL_STYLES[task.status] || DETAIL_STYLES['Por hacer']}`}>
+                    <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${STATUS_COLORS[task.status]}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800">{task.title}</p>
+                      {task.description && <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>}
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        {task.assigned_to && (
+                          <span className={`text-xs font-medium ${isOwn ? 'text-brand-600' : 'text-gray-500'}`}>
+                            {task.assigned_to}
+                          </span>
+                        )}
+                        {assignedToMe && (
+                          <span className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded-full font-medium">
+                            ← de {task.created_by}
+                          </span>
+                        )}
+                        {assignedByMe && (
+                          <span className="text-xs bg-brand-50 text-brand-500 border border-brand-200 px-1.5 py-0.5 rounded-full font-medium">
+                            → vos
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${STATUS_TEXT[task.status]}`}>
+                      {task.status}
+                    </span>
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${STATUS_TEXT[task.status]}`}>
-                    {task.status}
-                  </span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
