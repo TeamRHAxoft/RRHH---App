@@ -92,12 +92,10 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-1.5 flex-1 min-w-0">
                   {task.pinned && <Pin className="w-3 h-3 text-brand-400 flex-shrink-0" />}
-                  <p className="text-sm font-medium text-gray-800 flex-1 cursor-pointer" onClick={() => !readOnly && setEditing(true)}>{task.title}</p>
-                  {!readOnly && (
-                    <button onClick={() => setEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-brand-500 flex-shrink-0">
-                      <Pencil className="w-3 h-3" />
-                    </button>
-                  )}
+                  <p className="text-sm font-medium text-gray-800 flex-1 cursor-pointer" onClick={() => setEditing(true)}>{task.title}</p>
+                  <button onClick={() => setEditing(true)} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-300 hover:text-brand-500 flex-shrink-0">
+                    <Pencil className="w-3 h-3" />
+                  </button>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {task.description && (
@@ -105,7 +103,7 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                       {expanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                     </button>
                   )}
-                  {readOnly ? (
+                  {readOnly && (
                     <>
                       <button
                         onClick={() => onMoveWeek && onMoveWeek(task.id, -1)}
@@ -121,44 +119,34 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                       >
                         <CornerUpLeft className="w-3.5 h-3.5" />
                       </button>
-                      <button
-                        onClick={() => onMoveWeek && onMoveWeek(task.id, 1)}
-                        title="Mover a semana siguiente"
-                        className="text-gray-300 hover:text-brand-500 p-0.5"
-                      >
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
                     </>
+                  )}
+                  <button
+                    onClick={() => onMoveWeek && onMoveWeek(task.id, 1)}
+                    title="Mover a semana siguiente"
+                    className="text-gray-300 hover:text-brand-500 p-0.5"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onTogglePin && onTogglePin(task.id, task.pinned)}
+                    title={task.pinned ? 'Desfijar' : 'Fijar en todas las semanas'}
+                    className={`p-0.5 ${task.pinned ? 'text-brand-400 hover:text-brand-600' : 'text-gray-300 hover:text-brand-400'}`}
+                  >
+                    <Pin className="w-3.5 h-3.5" />
+                  </button>
+                  {task.pinned ? (
+                    <button
+                      onClick={() => onArchive && onArchive(task.id)}
+                      title="Archivar en historial"
+                      className="text-gray-300 hover:text-orange-400 p-0.5"
+                    >
+                      <Archive className="w-3.5 h-3.5" />
+                    </button>
                   ) : (
-                    <>
-                      <button
-                        onClick={() => onMoveWeek && onMoveWeek(task.id, 1)}
-                        title="Mover a semana siguiente"
-                        className="text-gray-300 hover:text-brand-500 p-0.5"
-                      >
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => onTogglePin && onTogglePin(task.id, task.pinned)}
-                        title={task.pinned ? 'Desfijar' : 'Fijar en todas las semanas'}
-                        className={`p-0.5 ${task.pinned ? 'text-brand-400 hover:text-brand-600' : 'text-gray-300 hover:text-brand-400'}`}
-                      >
-                        <Pin className="w-3.5 h-3.5" />
-                      </button>
-                      {task.pinned ? (
-                        <button
-                          onClick={() => onArchive && onArchive(task.id)}
-                          title="Archivar en historial"
-                          className="text-gray-300 hover:text-orange-400 p-0.5"
-                        >
-                          <Archive className="w-3.5 h-3.5" />
-                        </button>
-                      ) : (
-                        <button onClick={handleDelete} className="text-gray-300 hover:text-red-400 p-0.5">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </>
+                    <button onClick={handleDelete} className="text-gray-300 hover:text-red-400 p-0.5">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   )}
                 </div>
               </div>
