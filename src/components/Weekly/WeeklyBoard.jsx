@@ -32,6 +32,7 @@ export default function WeeklyBoard({ user }) {
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 })
   const weekLabel = `${format(weekStart, "d 'de' MMMM", { locale: es })} — ${format(weekEnd, "d 'de' MMMM", { locale: es })}`
   const weekKey = format(weekStart, 'yyyy-MM-dd')
+  const weekEndKey = format(weekEnd, 'yyyy-MM-dd')
   const currentWeekKey = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
   const isCurrentWeek = weekOffset === 0
 
@@ -76,9 +77,9 @@ export default function WeeklyBoard({ user }) {
 
     let q = supabase.from('tasks').select('*')
     if (isCurrentWeek) {
-      q = q.or(`week_start.eq.${weekKey},pinned.eq.true`)
+      q = q.or(`week_start.eq.${weekKey},pinned.eq.true,and(due_date.gte.${weekKey},due_date.lte.${weekEndKey})`)
     } else {
-      q = q.eq('week_start', weekKey)
+      q = q.or(`week_start.eq.${weekKey},and(due_date.gte.${weekKey},due_date.lte.${weekEndKey})`)
     }
     q = q.or('archived.eq.false,archived.is.null')
       .order('pinned', { ascending: false, nullsFirst: false })
