@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  addDays, addMonths, subMonths, isSameMonth, isToday, isSameDay
+  addDays, subDays, addMonths, subMonths, isSameMonth, isToday, isSameDay, parseISO
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Plus, X, Pencil } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, X, Pencil, Trash2 } from 'lucide-react'
 
 const STATUS_TEXT = {
   'Por hacer': 'text-amber-700 bg-amber-100',
@@ -307,6 +307,23 @@ export default function CalendarView({ user }) {
     return rows
   }
 
+  const handleMoveTaskWeek = async (task, delta) => {
+    const base = task.due_date ? parseISO(task.due_date) : parseISO(task.week_start)
+    const newDate = delta > 0 ? addDays(base, 7) : subDays(base, 7)
+    const newDueDate = format(newDate, 'yyyy-MM-dd')
+    const newWeekStart = getWeekStart(newDate)
+    setTasks((prev) => prev.map((t) => t.id === task.id ? { ...t, due_date: newDueDate, week_start: newWeekStart } : t))
+    await supabase.from('tasks').update({ due_date: newDueDate, week_start: newWeekStart, updated_at: new Date() }).eq('id', task.id)
+    setSelectedDay(null)
+  }
+
+  const handleDeleteTask = async (id) => {
+    if (!confirm('¿Eliminar esta tarea?')) return
+    setTasks((prev) => prev.filter((t) => t.id !== id))
+    await supabase.from('tasks').delete().eq('id', id)
+    setSelectedDay(null)
+  }
+
   const selectedDayTasks = selectedDay ? getTasksForDay(selectedDay) : []
 
   return (
@@ -367,12 +384,36 @@ export default function CalendarView({ user }) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-medium text-gray-800">{task.title}</p>
-                        <button
-                          onClick={() => setEditingTask(task)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-brand-500 flex-shrink-0"
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                          <button
+                            onClick={() => handleMoveTaskWeek(task, -1)}
+                            title="Semana anterior"
+                            className="text-gray-400 hover:text-brand-500"
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveTaskWeek(task, 1)}
+                            title="Semana siguiente"
+                            className="text-gray-400 hover:text-brand-500"
+                          >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => setEditingTask(task)}
+                            title="Editar"
+                            className="text-gray-400 hover:text-brand-500"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTask(task.id)}
+                            title="Eliminar"
+                            className="text-gray-400 hover:text-red-400"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                       {task.description && <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>}
                       <div className="flex items-center gap-2 mt-1 flex-wrap">

@@ -57,6 +57,23 @@ export default function WeeklyBoard({ user }) {
 
   const fetchTasks = async ({ silent = false } = {}) => {
     if (!silent) setLoading(true)
+
+    // Auto-rollover: move incomplete tasks from last week to current week
+    if (isCurrentWeek) {
+      const prevWeekKey = format(addWeeks(weekStart, -1), 'yyyy-MM-dd')
+      const { data: leftover } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('week_start', prevWeekKey)
+        .neq('status', 'Hecho')
+        .not('pinned', 'eq', true)
+        .or('archived.eq.false,archived.is.null')
+      if (leftover && leftover.length > 0) {
+        const ids = leftover.map((t) => t.id)
+        await supabase.from('tasks').update({ week_start: weekKey, updated_at: new Date() }).in('id', ids)
+      }
+    }
+
     let q = supabase.from('tasks').select('*')
     if (isCurrentWeek) {
       q = q.or(`week_start.eq.${weekKey},pinned.eq.true`)
