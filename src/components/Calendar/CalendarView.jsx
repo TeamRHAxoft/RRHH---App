@@ -422,7 +422,7 @@ export default function CalendarView({ user }) {
       {showAddModal && selectedDay && (
         <AddTaskModal
           date={selectedDay}
-          currentUser={user?.email}
+          currentUser={profiles.find(p => p.id === user?.id)?.display_name || ''}
           profiles={profiles}
           onClose={() => setShowAddModal(false)}
           onAdded={() => { fetchTasks(); setShowAddModal(false) }}
