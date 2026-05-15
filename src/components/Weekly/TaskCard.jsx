@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
-import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil, Calendar } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
@@ -22,7 +22,7 @@ function Avatar({ name, size = 'sm' }) {
   )
 }
 
-export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin, onArchive, onMoveToCurrentWeek, readOnly, currentProfile, profiles }) {
+export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin, onArchive, onMoveToCurrentWeek, onMoveWeek, readOnly, currentProfile, profiles }) {
   const [expanded, setExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: task.title, description: task.description || '', assigned_to: task.assigned_to || '', due_date: task.due_date || '' })
@@ -106,15 +106,38 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                     </button>
                   )}
                   {readOnly ? (
-                    <button
-                      onClick={() => onMoveToCurrentWeek && onMoveToCurrentWeek(task.id)}
-                      title="Mover a semana actual"
-                      className="text-gray-300 hover:text-brand-500 p-0.5"
-                    >
-                      <CornerUpLeft className="w-3.5 h-3.5" />
-                    </button>
+                    <>
+                      <button
+                        onClick={() => onMoveWeek && onMoveWeek(task.id, -1)}
+                        title="Mover a semana anterior"
+                        className="text-gray-300 hover:text-brand-500 p-0.5"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onMoveToCurrentWeek && onMoveToCurrentWeek(task.id)}
+                        title="Mover a semana actual"
+                        className="text-gray-300 hover:text-brand-500 p-0.5"
+                      >
+                        <CornerUpLeft className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onMoveWeek && onMoveWeek(task.id, 1)}
+                        title="Mover a semana siguiente"
+                        className="text-gray-300 hover:text-brand-500 p-0.5"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </>
                   ) : (
                     <>
+                      <button
+                        onClick={() => onMoveWeek && onMoveWeek(task.id, 1)}
+                        title="Mover a semana siguiente"
+                        className="text-gray-300 hover:text-brand-500 p-0.5"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
                       <button
                         onClick={() => onTogglePin && onTogglePin(task.id, task.pinned)}
                         title={task.pinned ? 'Desfijar' : 'Fijar en todas las semanas'}

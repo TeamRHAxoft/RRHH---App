@@ -161,6 +161,12 @@ export default function WeeklyBoard({ user }) {
     await supabase.from('tasks').update({ week_start: currentWeekKey, updated_at: new Date() }).eq('id', id)
   }
 
+  const handleMoveWeek = async (id, delta) => {
+    const targetWeek = format(addWeeks(weekStart, delta), 'yyyy-MM-dd')
+    setTasks((prev) => prev.filter((t) => t.id !== id))
+    await supabase.from('tasks').update({ week_start: targetWeek, updated_at: new Date() }).eq('id', id)
+  }
+
   const handleTaskAdded = async (taskData) => {
     const tempId = `temp-${Date.now()}`
     const optimistic = { ...taskData, id: tempId, pinned: false, archived: false, created_at: new Date().toISOString() }
@@ -239,6 +245,7 @@ export default function WeeklyBoard({ user }) {
               onTogglePin={handleTogglePin}
               onArchive={handleArchive}
               onMoveToCurrentWeek={handleMoveToCurrentWeek}
+              onMoveWeek={handleMoveWeek}
               readOnly={!isCurrentWeek}
               currentProfile={currentProfile}
               profiles={profiles}
