@@ -65,6 +65,7 @@ export default function WeeklyBoard({ user }) {
     }
     q = q.or('archived.eq.false,archived.is.null')
       .order('pinned', { ascending: false, nullsFirst: false })
+      .order('orden', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true })
     const { data } = await q
     setTasks(data || [])
@@ -73,13 +74,66 @@ export default function WeeklyBoard({ user }) {
 
   const onDragEnd = async (result) => {
     if (!result.destination) return
-    const { draggableId, destination } = result
+    const { draggableId, source, destination } = result
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return
+
     const newStatus = destination.droppableId
 
+    // Snapshot current ordered columns
+    const sortedByStatus = (status) =>
+      tasks
+        .filter((t) => t.status === status)
+        .slice() // don't mutate
+        .sort((a, b) => {
+          if (a.pinned !== b.pinned) return b.pinned ? -1 : 1
+          if (a.orden != null && b.orden != null) return a.orden - b.orden
+          if (a.orden != null) return -1
+          if (b.orden != null) return 1
+          return new Date(a.created_at) - new Date(b.created_at)
+        })
+
+    const srcList = sortedByStatus(source.droppableId)
+    const moved = srcList[source.index]
+    if (!moved) return
+
+    // Build new arrays
+    const newSrc = srcList.filter((_, i) => i !== source.index)
+    let newDst
+    if (source.droppableId === destination.droppableId) {
+      newDst = [...newSrc]
+      newDst.splice(destination.index, 0, { ...moved, status: newStatus })
+    } else {
+      const dstList = sortedByStatus(newStatus)
+      newDst = [...dstList]
+      newDst.splice(destination.index, 0, { ...moved, status: newStatus })
+    }
+
+    // Assign orden values
+    const ordenUpdates = []
+    const assignOrden = (list) =>
+      list.map((t, i) => {
+        ordenUpdates.push({ id: t.id, orden: i, status: t.status })
+        return { ...t, orden: i }
+      })
+
+    const updatedSrc = assignOrden(newSrc.map((t) => ({ ...t })))
+    const updatedDst = assignOrden(newDst)
+
+    // Merge into full task list
+    const affectedIds = new Set([...updatedSrc, ...updatedDst].map((t) => t.id))
+    const mergedMap = {}
+    ;[...updatedSrc, ...updatedDst].forEach((t) => { mergedMap[t.id] = t })
+
     setTasks((prev) =>
-      prev.map((t) => (t.id === draggableId ? { ...t, status: newStatus } : t))
+      prev.map((t) => (affectedIds.has(t.id) ? mergedMap[t.id] : t))
     )
-    await supabase.from('tasks').update({ status: newStatus, updated_at: new Date() }).eq('id', draggableId)
+
+    // Persist to Supabase
+    await Promise.all(
+      ordenUpdates.map(({ id, orden, status }) =>
+        supabase.from('tasks').update({ orden, status, updated_at: new Date() }).eq('id', id)
+      )
+    )
   }
 
   const handleDelete = async (id) => {
@@ -170,7 +224,16 @@ export default function WeeklyBoard({ user }) {
               key={status}
               status={status}
               colorClass={STATUS_COLORS[status]}
-              tasks={tasks.filter((t) => t.status === status)}
+              tasks={tasks
+                .filter((t) => t.status === status)
+                .slice()
+                .sort((a, b) => {
+                  if (a.pinned !== b.pinned) return b.pinned ? -1 : 1
+                  if (a.orden != null && b.orden != null) return a.orden - b.orden
+                  if (a.orden != null) return -1
+                  if (b.orden != null) return 1
+                  return new Date(a.created_at) - new Date(b.created_at)
+                })}
               onDelete={handleDelete}
               onUpdate={handleUpdate}
               onTogglePin={handleTogglePin}
