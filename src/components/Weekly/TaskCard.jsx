@@ -25,10 +25,10 @@ function Avatar({ name, size = 'sm' }) {
 export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin, onArchive, onMoveToCurrentWeek, readOnly, currentProfile, profiles }) {
   const [expanded, setExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState({ title: task.title, description: task.description || '', assigned_to: task.assigned_to || '' })
+  const [form, setForm] = useState({ title: task.title, description: task.description || '', assigned_to: task.assigned_to || '', due_date: task.due_date || '' })
 
   const handleSave = async () => {
-    await onUpdate(task.id, form)
+    await onUpdate(task.id, { ...form, due_date: form.due_date || null })
     setEditing(false)
   }
 
@@ -76,6 +76,12 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                 ))}
                 <option value="Selva y Lucila">Selva y Lucila</option>
               </select>
+              <input
+                type="date"
+                value={form.due_date}
+                onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand-400"
+              />
               <div className="flex gap-2">
                 <button onClick={() => setEditing(false)} className="flex-1 text-xs border border-gray-300 rounded py-1 hover:bg-gray-50">Cancelar</button>
                 <button onClick={handleSave} className="flex-1 text-xs bg-brand-600 text-white rounded py-1 hover:bg-brand-700">Guardar</button>

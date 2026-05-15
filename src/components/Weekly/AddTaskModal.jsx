@@ -8,6 +8,7 @@ export default function AddTaskModal({ weekStart, currentProfile, profiles, onCl
     description: '',
     status: 'Por hacer',
     assigned_to: currentProfile?.display_name || '',
+    due_date: '',
   })
   const [loading, setLoading] = useState(false)
 
@@ -20,6 +21,7 @@ export default function AddTaskModal({ weekStart, currentProfile, profiles, onCl
       assigned_to: form.assigned_to,
       created_by: currentProfile?.display_name || '',
       week_start: weekStart,
+      due_date: form.due_date || null,
     }
     onClose()
     onAdded(taskData)
@@ -81,6 +83,15 @@ export default function AddTaskModal({ weekStart, currentProfile, profiles, onCl
               ))}
               <option value="Selva y Lucila">Selva y Lucila</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha en calendario <span className="text-gray-400 font-normal">(opcional)</span></label>
+            <input
+              type="date"
+              value={form.due_date}
+              onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+            />
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm hover:bg-gray-50">
