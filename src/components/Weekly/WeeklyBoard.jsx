@@ -258,6 +258,8 @@ export default function WeeklyBoard({ user }) {
                   if (b.orden != null) return 1
                   return new Date(a.created_at) - new Date(b.created_at)
                 })}
+              weekKey={weekKey}
+              weekEndKey={weekEndKey}
               onDelete={handleDelete}
               onUpdate={handleUpdate}
               onTogglePin={handleTogglePin}

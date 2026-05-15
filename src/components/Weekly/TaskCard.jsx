@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
-import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil, Calendar, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
@@ -22,7 +22,7 @@ function Avatar({ name, size = 'sm' }) {
   )
 }
 
-export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin, onArchive, onMoveToCurrentWeek, onMoveWeek, readOnly, currentProfile, profiles }) {
+export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin, onArchive, onMoveToCurrentWeek, onMoveWeek, readOnly, currentProfile, profiles, weekKey, weekEndKey }) {
   const [expanded, setExpanded] = useState(false)
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: task.title, description: task.description || '', assigned_to: task.assigned_to || '', due_date: task.due_date || '' })
@@ -40,6 +40,20 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
 
   const isOwn = task.assigned_to === currentProfile?.display_name
 
+  // Task appears here because of due_date but belongs to a different week
+  const isDueOtherWeek = weekKey && weekEndKey && task.due_date &&
+    (task.due_date < weekKey || task.due_date > weekEndKey)
+
+  // Task appears here because week_start matches but due_date is in a different week
+  const isScheduledOtherWeek = weekKey && weekEndKey && task.due_date &&
+    task.due_date > weekEndKey
+
+  const otherWeekLabel = (() => {
+    if (!task.due_date) return null
+    const d = new Date(task.due_date + 'T12:00:00')
+    return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })
+  })()
+
   return (
     <Draggable draggableId={task.id} index={index} isDragDisabled={readOnly}>
       {(provided, snapshot) => (
@@ -48,7 +62,10 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`rounded-lg border transition-all ${
-            snapshot.isDragging ? 'border-brand-400 shadow-lg bg-white' : `${CARD_STYLES[task.status] || CARD_STYLES['Por hacer']} hover:border-brand-200`
+            snapshot.isDragging ? 'border-brand-400 shadow-lg bg-white' :
+            isScheduledOtherWeek ? 'bg-white border-dashed border-brand-300 hover:border-brand-400' :
+            isDueOtherWeek ? 'bg-white border-dashed border-gray-300 hover:border-brand-300' :
+            `${CARD_STYLES[task.status] || CARD_STYLES['Por hacer']} hover:border-brand-200`
           } ${task.pinned ? 'ring-1 ring-brand-300' : ''}`}
         >
           {editing ? (
@@ -155,7 +172,13 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                 <p className="text-xs text-gray-500 mt-1.5">{task.description}</p>
               )}
 
-              {task.due_date && (
+              {isScheduledOtherWeek && otherWeekLabel && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  <ArrowRight className="w-3 h-3 text-brand-400 flex-shrink-0" />
+                  <span className="text-xs text-brand-500 font-medium">Para el {otherWeekLabel}</span>
+                </div>
+              )}
+              {!isScheduledOtherWeek && task.due_date && (
                 <div className="flex items-center gap-1 mt-1.5">
                   <Calendar className="w-3 h-3 text-brand-400 flex-shrink-0" />
                   <span className="text-xs text-brand-500 font-medium">
