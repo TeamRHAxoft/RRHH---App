@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Draggable } from '@hello-pangea/dnd'
-import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil } from 'lucide-react'
+import { Trash2, ChevronDown, ChevronUp, Pin, Archive, CornerUpLeft, Pencil, Calendar } from 'lucide-react'
 
 const AVATAR_COLORS = ['bg-brand-400', 'bg-teal-400', 'bg-orange-400', 'bg-pink-400', 'bg-indigo-400']
 
@@ -144,6 +144,14 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                 <p className="text-xs text-gray-500 mt-1.5">{task.description}</p>
               )}
 
+              {task.due_date && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  <Calendar className="w-3 h-3 text-brand-400 flex-shrink-0" />
+                  <span className="text-xs text-brand-500 font-medium">
+                    {new Date(task.due_date + 'T12:00:00').toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 {task.assigned_to && (
                   <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium ${isOwn ? 'bg-brand-50 text-brand-700' : 'bg-gray-100 text-gray-600'}`}>
