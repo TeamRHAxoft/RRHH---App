@@ -37,6 +37,10 @@ function AddTaskModal({ date, currentUser, profiles, onClose, onAdded }) {
   })
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    if (currentUser) setForm((f) => ({ ...f, assigned_to: currentUser }))
+  }, [currentUser])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
