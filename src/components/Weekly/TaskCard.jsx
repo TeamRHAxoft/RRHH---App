@@ -74,6 +74,7 @@ export default function TaskCard({ task, index, onDelete, onUpdate, onTogglePin,
                 {(profiles || []).map((p) => (
                   <option key={p.id} value={p.display_name}>{p.display_name}</option>
                 ))}
+                <option value="Selva y Lucila">Selva y Lucila</option>
               </select>
               <div className="flex gap-2">
                 <button onClick={() => setEditing(false)} className="flex-1 text-xs border border-gray-300 rounded py-1 hover:bg-gray-50">Cancelar</button>

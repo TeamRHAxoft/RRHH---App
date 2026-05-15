@@ -110,6 +110,7 @@ function AddTaskModal({ date, currentUser, profiles, onClose, onAdded }) {
               {(profiles || []).map((p) => (
                 <option key={p.id} value={p.display_name}>{p.display_name}</option>
               ))}
+              <option value="Selva y Lucila">Selva y Lucila</option>
             </select>
           </div>
           <div className="flex gap-3 pt-2">
@@ -192,6 +193,7 @@ function EditTaskModal({ task, profiles, onClose, onSaved }) {
               {(profiles || []).map((p) => (
                 <option key={p.id} value={p.display_name}>{p.display_name}</option>
               ))}
+              <option value="Selva y Lucila">Selva y Lucila</option>
             </select>
           </div>
           <div className="flex gap-3 pt-2">
