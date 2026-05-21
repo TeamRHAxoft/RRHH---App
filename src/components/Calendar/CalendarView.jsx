@@ -6,6 +6,7 @@ import {
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Plus, X, Pencil, Trash2 } from 'lucide-react'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 
 const STATUS_TEXT = {
   'Por hacer': 'text-amber-700 bg-amber-100',
@@ -262,49 +263,76 @@ export default function CalendarView({ user }) {
       const week = []
       for (let i = 0; i < 7; i++) {
         const d = day
+        const dayStr = format(d, 'yyyy-MM-dd')
         const dayTasks = getTasksForDay(d)
         const isCurrentMonth = isSameMonth(d, currentMonth)
         const isSelected = selectedDay && isSameDay(d, selectedDay)
         const today = isToday(d)
 
         week.push(
-          <div
-            key={d.toString()}
-            onClick={() => setSelectedDay(isSameDay(d, selectedDay) ? null : d)}
-            className={`min-h-24 p-1.5 border-b border-r cursor-pointer transition-colors ${
-              !isCurrentMonth ? 'bg-gray-50' : 'bg-white hover:bg-brand-50'
-            } ${isSelected ? 'ring-2 ring-inset ring-brand-400' : ''}`}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className={`text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full ${
-                today ? 'bg-brand-600 text-white' : isCurrentMonth ? 'text-gray-800' : 'text-gray-300'
-              }`}>
-                {format(d, 'd')}
-              </span>
-              {isCurrentMonth && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); setSelectedDay(d); setShowAddModal(true) }}
-                  className="opacity-0 hover:opacity-100 group-hover:opacity-100 text-gray-300 hover:text-brand-500 transition-opacity"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            <div className="space-y-0.5">
-              {dayTasks.slice(0, 3).map((task) => (
-                <div key={task.id} className={`text-xs px-1.5 py-0.5 rounded truncate font-medium ${STATUS_TEXT[task.status]}`}>
-                  {task.title}
+          <Droppable droppableId={dayStr} key={dayStr}>
+            {(droppableProvided, droppableSnapshot) => (
+              <div
+                onClick={() => setSelectedDay(isSameDay(d, selectedDay) ? null : d)}
+                className={`min-h-24 p-1.5 border-b border-r cursor-pointer transition-colors ${
+                  !isCurrentMonth ? 'bg-gray-50' : droppableSnapshot.isDraggingOver ? 'bg-brand-50' : 'bg-white hover:bg-brand-50'
+                } ${isSelected ? 'ring-2 ring-inset ring-brand-400' : ''}`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full ${
+                    today ? 'bg-brand-600 text-white' : isCurrentMonth ? 'text-gray-800' : 'text-gray-300'
+                  }`}>
+                    {format(d, 'd')}
+                  </span>
+                  {isCurrentMonth && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedDay(d); setShowAddModal(true) }}
+                      className="opacity-0 hover:opacity-100 text-gray-300 hover:text-brand-500 transition-opacity"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-              ))}
-              {dayTasks.length > 3 && <p className="text-xs text-gray-400 pl-1">+{dayTasks.length - 3} más</p>}
-            </div>
-          </div>
+                <div ref={droppableProvided.innerRef} {...droppableProvided.droppableProps} className="space-y-0.5 min-h-2">
+                  {dayTasks.slice(0, 3).map((task, taskIndex) => (
+                    <Draggable key={task.id} draggableId={task.id} index={taskIndex}>
+                      {(draggableProvided, draggableSnapshot) => (
+                        <div
+                          ref={draggableProvided.innerRef}
+                          {...draggableProvided.draggableProps}
+                          {...draggableProvided.dragHandleProps}
+                          onClick={(e) => e.stopPropagation()}
+                          className={`text-xs px-1.5 py-0.5 rounded truncate font-medium cursor-grab active:cursor-grabbing ${STATUS_TEXT[task.status]} ${draggableSnapshot.isDragging ? 'shadow-md opacity-90 rotate-1' : ''}`}
+                        >
+                          {task.title}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {droppableProvided.placeholder}
+                  {dayTasks.length > 3 && <p className="text-xs text-gray-400 pl-1">+{dayTasks.length - 3} más</p>}
+                </div>
+              </div>
+            )}
+          </Droppable>
         )
         day = addDays(day, 1)
       }
       rows.push(<div key={day.toString()} className="grid grid-cols-7">{week}</div>)
     }
     return rows
+  }
+
+  const onDragEnd = async (result) => {
+    if (!result.destination) return
+    const { draggableId, destination } = result
+    const newDueDate = destination.droppableId
+    const newWeekStart = getWeekStart(parseISO(newDueDate))
+    setTasks((prev) => prev.map((t) => t.id === draggableId
+      ? { ...t, due_date: newDueDate, week_start: newWeekStart }
+      : t
+    ))
+    await supabase.from('tasks').update({ due_date: newDueDate, week_start: newWeekStart, updated_at: new Date() }).eq('id', draggableId)
   }
 
   const handleMoveTaskWeek = async (task, delta) => {
@@ -351,7 +379,9 @@ export default function CalendarView({ user }) {
         {loading ? (
           <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Cargando...</div>
         ) : (
-          <div>{renderDays()}</div>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <div>{renderDays()}</div>
+          </DragDropContext>
         )}
       </div>
 
