@@ -225,10 +225,15 @@ export default function CalendarView({ user }) {
 
   useEffect(() => {
     fetchTasks()
+    const channel = supabase
+      .channel('tasks-calendar')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => fetchTasks({ silent: true }))
+      .subscribe()
+    return () => supabase.removeChannel(channel)
   }, [currentMonth])
 
-  const fetchTasks = async () => {
-    setLoading(true)
+  const fetchTasks = async ({ silent = false } = {}) => {
+    if (!silent) setLoading(true)
     const monthStart = format(startOfMonth(currentMonth), 'yyyy-MM-dd')
     const monthEnd = format(endOfMonth(currentMonth), 'yyyy-MM-dd')
     const { data } = await supabase
@@ -238,7 +243,7 @@ export default function CalendarView({ user }) {
       .or(`due_date.lte.${monthEnd},week_start.lte.${monthEnd}`)
       .order('created_at', { ascending: true })
     setTasks(data || [])
-    setLoading(false)
+    if (!silent) setLoading(false)
   }
 
   const getTasksForDay = (day) => {
